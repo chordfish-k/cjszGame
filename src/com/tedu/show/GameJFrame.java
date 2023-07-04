@@ -61,6 +61,12 @@ public class GameJFrame extends JFrame {
 
         // 显示界面
         this.setVisible(true);
+
+        // 如果panel继承了Runnable接口
+        if(this.panel instanceof Runnable) {
+            // 建立刷新线程
+            new Thread((Runnable) this.panel).start();
+        }
     }
 
 

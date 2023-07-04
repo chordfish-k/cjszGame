@@ -43,9 +43,11 @@ public class ElementManager {
         gameElements = new HashMap<ElementType, List<ElementObj>>();
 
         // 将每种元素集合都放入map中
-        gameElements.put(ElementType.PLAYER, new ArrayList<ElementObj>());
-        gameElements.put(ElementType.MAP, new ArrayList<ElementObj>());
-        gameElements.put(ElementType.ENEMY, new ArrayList<ElementObj>());
+        // gameElements.put(ElementType.PLAYER, new ArrayList<ElementObj>());
+
+        for(ElementType type : ElementType.values()) {
+            gameElements.put(type, new ArrayList<ElementObj>());
+        }
     }
 
     private Map<ElementType, List<ElementObj>> gameElements;

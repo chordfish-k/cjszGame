@@ -8,8 +8,8 @@ import java.awt.*;
  * @author LSR
  */
 public abstract class ElementObj {
-    private int x = 0;
-    private int y = 0;
+    private float x = 0;
+    private float y = 0;
     private int w = 0;
     private int h = 0;
     private ImageIcon sprite = null;
@@ -25,7 +25,7 @@ public abstract class ElementObj {
      * @param h 元素高度
      * @param sprite 元素贴图
      */
-    public ElementObj(int x, int y, int w, int h, ImageIcon sprite) {
+    public ElementObj(float x, float y, int w, int h, ImageIcon sprite) {
         super();
         this.x = x;
         this.y = y;
@@ -35,24 +35,47 @@ public abstract class ElementObj {
     }
 
     /**
+     * 当监听到键盘按键按下时触发
+     * @param key 按键码
+     */
+    public void onKeyPressed(int key) {
+        //不强制重写
+    }
+
+    /**
+     * 当监听到键盘按键松开时触发
+     * @param key 按键码
+     */
+    public void onKeyReleased(int key) {
+        //不强制重写
+    }
+
+    /**
+     * 帧更新
+     */
+    public void onUpdate() {
+
+    }
+
+    /**
      * 显示元素，抽象方法
      * @param g 当前JPanel的画笔
      */
     public abstract void showElement(Graphics g);
 
-    public int getX() {
+    public float getX() {
         return x;
     }
 
-    public void setX(int x) {
+    public void setX(float x) {
         this.x = x;
     }
 
-    public int getY() {
+    public float getY() {
         return y;
     }
 
-    public void setY(int y) {
+    public void setY(float y) {
         this.y = y;
     }
 

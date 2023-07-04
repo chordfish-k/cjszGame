@@ -1,7 +1,6 @@
 package com.tedu.show;
 
 import com.tedu.element.ElementObj;
-import com.tedu.element.Player;
 import com.tedu.manager.ElementManager;
 import com.tedu.manager.ElementType;
 
@@ -9,7 +8,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * 游戏的主要面板 <p>
@@ -17,41 +15,55 @@ import java.util.Set;
  * @author LSR
  *
  */
-public class GameMainJPanel extends JPanel {
+public class GameMainJPanel extends JPanel implements Runnable{
     // 联动管理器
     private ElementManager em;
+    // 刷新间隔
+    private int refreshSleep = 15;
 
     public GameMainJPanel() {
         init();
-//        以下代码以后会重写
-        load();
     }
 
     public void init() {
         em = ElementManager.getManager();
     }
 
-    public void load() {
-        // 图片导入
-        ImageIcon icon = new ImageIcon("image/tank/play1/player1_up.png");
-        // 创建元素
-        ElementObj player = new Player(100, 100, 50, 50, icon);
-        // 将对象放入到元素管理器中
-        em.addElement(player, ElementType.PLAYER);
-    }
 
     @Override //Graphics 画笔
     public void paint(Graphics g) {
         super.paint(g);
 
         Map<ElementType, List<ElementObj>> all = em.getGameElements();
-        Set<ElementType> keySet = all.keySet();
 
-        for(ElementType type : keySet) {
+        for(ElementType type: ElementType.values()) { // values()按枚举定义顺序返回枚举数组
             List<ElementObj> list = all.get(type);
             for(int i=0; i<list.size(); i++) {
-                list.get(i).showElement(g);
+                ElementObj obj = list.get(i);
+                obj.showElement(g);
             }
         }
+    }
+
+    @Override
+    public void run() {
+        // 渲染线程
+        while (true) {
+            this.repaint();
+            try {
+                Thread.sleep(refreshSleep); // 1000/10=100Hz
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public int getRefreshSleep() {
+        return refreshSleep;
+    }
+
+    public GameMainJPanel setRefreshSleep(int refreshSleep) {
+        this.refreshSleep = refreshSleep;
+        return this;
     }
 }
