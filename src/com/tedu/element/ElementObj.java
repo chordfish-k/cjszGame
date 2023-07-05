@@ -1,5 +1,7 @@
 package com.tedu.element;
 
+import com.tedu.controller.EntityState;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -13,6 +15,7 @@ public abstract class ElementObj {
     private int w = 0;
     private int h = 0;
     private ImageIcon sprite = null;
+    private EntityState entityState = EntityState.LIVING;
 
     public ElementObj() {
     }
@@ -35,6 +38,22 @@ public abstract class ElementObj {
     }
 
     /**
+     * 工厂模式创建对象（需重写）
+     * @param data 必要的数据
+     * @return 将数据解析后新建的对象
+     */
+    public ElementObj create(String data) {
+        return null;
+    }
+
+    /**
+     * 销毁当前对象
+     */
+    public void destroy(){
+        setEntityState(EntityState.DIED);
+    }
+
+    /**
      * 当监听到键盘按键按下时触发
      * @param key 按键码
      */
@@ -53,7 +72,21 @@ public abstract class ElementObj {
     /**
      * 帧更新
      */
-    public void onUpdate() {
+    public void onUpdate(long time) {
+
+    }
+
+    /**
+     * 当对象被销毁前触发
+     */
+    public void onDestroy() {
+
+    }
+
+    /**
+     * 当触发碰撞后触发
+     */
+    public void onCollision(ElementObj other) {
 
     }
 
@@ -101,5 +134,30 @@ public abstract class ElementObj {
 
     public void setSprite(ImageIcon sprite) {
         this.sprite = sprite;
+    }
+
+    public EntityState getEntityState() {
+        return entityState;
+    }
+
+    public void setEntityState(EntityState entityState) {
+        this.entityState = entityState;
+    }
+
+    /**
+     * 获取本元素的外包围盒
+     * @return 元素的碰撞矩形对象
+     */
+    public Rectangle getRectangle() {
+        return new Rectangle(Math.round(x), Math.round(y), w, h);
+    }
+
+    /**
+     * 根据外包围盒，判断两个元素是否有重合（碰撞）
+     * @param obj 需要比较的另一个元素
+     * @return 是否碰撞的判断
+     */
+    public boolean checkCollisionWith(ElementObj obj) {
+        return this.getRectangle().intersects(obj.getRectangle());
     }
 }

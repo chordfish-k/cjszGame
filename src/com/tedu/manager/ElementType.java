@@ -11,5 +11,5 @@ public enum ElementType {
      * ENEMY 敌人
      *
      */
-    MAP, PLAYER, ENEMY
+    MAP, PLAYER, ENEMY, BULLET, DIE
 }

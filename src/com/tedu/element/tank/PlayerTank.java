@@ -1,6 +1,10 @@
 package com.tedu.element.tank;
 
 import com.tedu.controller.Direction;
+import com.tedu.element.ElementObj;
+import com.tedu.element.bullet.Bullet;
+import com.tedu.manager.ElementManager;
+import com.tedu.manager.ElementType;
 import com.tedu.manager.GameLoad;
 import com.tedu.show.GameJFrame;
 
@@ -15,10 +19,12 @@ public class PlayerTank extends TankBase{
 
     private boolean moving = false; // 移动状态
     private boolean attacking = false; // 攻击状态
+    private long attackSpan = 0; // 攻击间隔
+    private long lastAttackTime = 0;
 
     public PlayerTank(float x, float y, int w, int h, ImageIcon sprite) {
         super(x, y, w, h, sprite);
-
+        this.attackSpan = 10;
     }
 
 
@@ -72,7 +78,7 @@ public class PlayerTank extends TankBase{
     }
 
     @Override
-    protected void move() {
+    protected void move(long time) {
         if (!this.moving) return;
 
         if (getFacing() == Direction.LEFT && this.getX() > 0) {
@@ -90,12 +96,35 @@ public class PlayerTank extends TankBase{
     }
 
     @Override
-    protected void spriteChange() {
+    protected void spriteChange(long time) {
         setSprite(GameLoad.imgMap.get(facing));
     }
 
     @Override
-    protected void attack() {
+    protected void attack(long time) {
+        if(!attacking)
+            return;
 
+        if(time - lastAttackTime < attackSpan)
+            return;
+
+        lastAttackTime = time;
+
+        float x = getX();
+        float y = getY();
+        int halfH = getH() / 2;
+        int halfW = getW() / 2;
+
+        switch (getFacing()) {
+            case UP: x += halfW; break;
+            case DOWN: x += halfW; y += getH() - 10; break;
+            case LEFT: y += halfH; break;
+            case RIGHT: y += halfH; x += getW() - 10; break;
+        }
+        String dataStr = "x:" + x + ",y:" + y + ",f:" + getFacing().name();
+
+        ElementObj ele = new Bullet().create(dataStr);
+
+        ElementManager.getManager().addElement(ele, ElementType.BULLET);
     }
 }

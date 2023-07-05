@@ -9,8 +9,11 @@ import java.awt.*;
 public class TankBase extends ElementObj {
 
     protected float speed = 5;
+    protected int health = 2;
     // 当前面向的方向
     protected Direction facing = Direction.UP;
+
+    public TankBase(){}
 
     public TankBase(float x, float y, int w, int h, ImageIcon sprite) {
         super(x, y, w, h, sprite);
@@ -24,38 +27,36 @@ public class TankBase extends ElementObj {
     }
 
     @Override
-    public void onUpdate() {
-        super.onUpdate();
-
-        tankBehavior();
+    public void onUpdate(long time) {
+        tankBehavior(time);
     }
 
     /**
      * 坦克基本行为模式<p>
      * 改变贴图，移动，发射炮弹
      */
-    protected final void tankBehavior() {
-        spriteChange();
-        move();
-        attack();
+    protected final void tankBehavior(long time) {
+        spriteChange(time);
+        move(time);
+        attack(time);
     }
 
     /**
      * 处理贴图变化（带重写）
      */
-    protected void spriteChange() {
+    protected void spriteChange(long time) {
     }
 
     /**
      * 移动函数（需重写）
      */
-    protected void move() {
+    protected void move(long time) {
     }
 
     /**
      * 攻击函数（需重写）
      */
-    protected void attack() {
+    protected void attack(long time) {
     }
 
     public float getSpeed() {
@@ -72,5 +73,20 @@ public class TankBase extends ElementObj {
 
     public void setFacing(Direction facing) {
         this.facing = facing;
+    }
+
+    public int getHealth() {
+        return health;
+    }
+
+    public void setHealth(int health) {
+        this.health = Math.max(health, 0);
+        if (this.health <= 0) {
+            this.destroy();
+        }
+    }
+
+    public void damageBy(int damage) {
+        this.setHealth(this.getHealth() - damage);
     }
 }
