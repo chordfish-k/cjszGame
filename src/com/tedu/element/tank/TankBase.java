@@ -2,28 +2,46 @@ package com.tedu.element.tank;
 
 import com.tedu.controller.Direction;
 import com.tedu.element.ElementObj;
+import com.tedu.element.component.HealthValue;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class TankBase extends ElementObj {
+public class TankBase extends ElementObj{
 
-    protected float speed = 5;
-    protected int health = 2;
+    HealthValue hv = null;
+
+    protected float speed = 1;
+
     // 当前面向的方向
     protected Direction facing = Direction.UP;
 
-    public TankBase(){}
+    public TankBase(){
+        this(0, 0, 0, 0, null);
+    }
 
     public TankBase(float x, float y, int w, int h, ImageIcon sprite) {
         super(x, y, w, h, sprite);
+        hv = (HealthValue) addComponent("HealthValue");
     }
 
     @Override
-    public void showElement(Graphics g) {
+    public void onDraw(Graphics g) {
         g.drawImage(getSprite().getImage(),
                 Math.round(getX()), Math.round(getY()),
                 getW(), getH(), null);
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+
+
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
     }
 
     @Override
@@ -73,20 +91,5 @@ public class TankBase extends ElementObj {
 
     public void setFacing(Direction facing) {
         this.facing = facing;
-    }
-
-    public int getHealth() {
-        return health;
-    }
-
-    public void setHealth(int health) {
-        this.health = Math.max(health, 0);
-        if (this.health <= 0) {
-            this.destroy();
-        }
-    }
-
-    public void damageBy(int damage) {
-        this.setHealth(this.getHealth() - damage);
     }
 }

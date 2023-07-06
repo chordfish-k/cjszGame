@@ -3,6 +3,7 @@ package com.tedu.element.tank;
 import com.tedu.controller.Direction;
 import com.tedu.element.ElementObj;
 import com.tedu.element.bullet.Bullet;
+import com.tedu.element.component.HealthValue;
 import com.tedu.manager.ElementManager;
 import com.tedu.manager.ElementType;
 import com.tedu.manager.GameLoad;
@@ -22,11 +23,26 @@ public class PlayerTank extends TankBase{
     private long attackSpan = 0; // 攻击间隔
     private long lastAttackTime = 0;
 
-    public PlayerTank(float x, float y, int w, int h, ImageIcon sprite) {
-        super(x, y, w, h, sprite);
+    public PlayerTank() { }
+
+    @Override
+    public ElementObj create(String data) {
+        String[] split = data.split(",");
+        this.setX(Float.parseFloat(split[0]));
+        this.setY(Float.parseFloat(split[1]));
+        this.setSprite(GameLoad.imgMap.get(split[2]));
+        this.setW(getSprite().getIconWidth());
+        this.setH(getSprite().getIconHeight());
+
         this.attackSpan = 10;
+        ((HealthValue)this.getComponent("HealthValue")).setMaxHealth(10, true);
+        return this;
     }
 
+    @Override
+    public void onCreate() {
+        super.onCreate();
+    }
 
     @Override
     public void onKeyPressed(int key) {
@@ -97,7 +113,7 @@ public class PlayerTank extends TankBase{
 
     @Override
     protected void spriteChange(long time) {
-        setSprite(GameLoad.imgMap.get(facing));
+        setSprite(GameLoad.imgMap.get(facing.name().toLowerCase()));
     }
 
     @Override

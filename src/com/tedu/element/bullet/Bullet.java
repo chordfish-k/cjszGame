@@ -1,11 +1,13 @@
 package com.tedu.element.bullet;
 
 import com.tedu.controller.Direction;
-import com.tedu.controller.EntityState;
+import com.tedu.element.ElementState;
 import com.tedu.element.ElementObj;
+import com.tedu.element.component.HealthValue;
+import com.tedu.element.map.MapObj;
+import com.tedu.element.tank.TankBase;
 import com.tedu.show.GameJFrame;
 
-import javax.swing.*;
 import java.awt.*;
 
 /**
@@ -49,7 +51,7 @@ public class Bullet extends ElementObj {
     }
 
     @Override
-    public void showElement(Graphics g) {
+    public void onDraw(Graphics g) {
         g.setColor(Color.red);
 
         int x = Math.round(this.getX());
@@ -85,12 +87,12 @@ public class Bullet extends ElementObj {
         float x = this.getX();
         float y = this.getY();
         if (x < 0 || y < 0 || x > GameJFrame.SIZE_W || y > GameJFrame.SIZE_H) {
-            this.setEntityState(EntityState.DIED);
+            this.setElementState(ElementState.DIED);
         }
     }
 
     public void move() {
-        if (this.getEntityState() == EntityState.DIED)
+        if (this.getElementState() == ElementState.DIED)
             return;
 
         switch (this.facing) {
@@ -111,12 +113,17 @@ public class Bullet extends ElementObj {
 
     @Override
     public void onDestroy() {
-        System.out.println("die");
     }
 
     @Override
     public void onCollision(ElementObj other) {
+        // 消除自身
         destroy();
+        // 被子弹打到的元素，如果有HealthValue组件，则扣血
+        HealthValue hv = (HealthValue) other.getComponent("HealthValue");
+        if (hv != null) {
+            hv.damageBy(getDamage());
+        }
     }
 
     public int getDamage() {

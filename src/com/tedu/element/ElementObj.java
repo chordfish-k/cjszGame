@@ -1,9 +1,12 @@
 package com.tedu.element;
 
-import com.tedu.controller.EntityState;
+import com.tedu.element.component.ComponentBase;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 所有元素的基类
@@ -15,9 +18,12 @@ public abstract class ElementObj {
     private int w = 0;
     private int h = 0;
     private ImageIcon sprite = null;
-    private EntityState entityState = EntityState.LIVING;
+    private ElementState elementState = ElementState.LIVING;
+    private List<ElementObj> children = null;
+    private Map<String, ComponentBase> components = null;
 
     public ElementObj() {
+        components = new HashMap<>();
     }
 
     /**
@@ -29,12 +35,16 @@ public abstract class ElementObj {
      * @param sprite 元素贴图
      */
     public ElementObj(float x, float y, int w, int h, ImageIcon sprite) {
-        super();
+        this();
         this.x = x;
         this.y = y;
         this.w = w;
         this.h = h;
         this.sprite = sprite;
+    }
+
+    public ElementObj create() {
+        return this.create("");
     }
 
     /**
@@ -43,14 +53,32 @@ public abstract class ElementObj {
      * @return 将数据解析后新建的对象
      */
     public ElementObj create(String data) {
-        return null;
+        return this;
+    }
+
+    /**
+     * 当前元素创建中执行，主要加载Component
+     */
+    public void onLoad() {
+        for(String cpKey : components.keySet()) {
+            components.get(cpKey).onLoad();
+        }
+    }
+
+    /**
+     * 当元素创建后执行
+     */
+    public void onCreate() {
+        for(String cpKey : components.keySet()) {
+            components.get(cpKey).onCreate();
+        }
     }
 
     /**
      * 销毁当前对象
      */
     public void destroy(){
-        setEntityState(EntityState.DIED);
+        setElementState(ElementState.DIED);
     }
 
     /**
@@ -73,14 +101,19 @@ public abstract class ElementObj {
      * 帧更新
      */
     public void onUpdate(long time) {
-
+        for(String cpKey : components.keySet()) {
+            components.get(cpKey).onUpdate();
+        }
     }
 
     /**
      * 当对象被销毁前触发
      */
     public void onDestroy() {
-
+        for(String cpKey : components.keySet()) {
+            components.get(cpKey).onDestroy();
+        }
+        components.clear();
     }
 
     /**
@@ -94,7 +127,7 @@ public abstract class ElementObj {
      * 显示元素，抽象方法
      * @param g 当前JPanel的画笔
      */
-    public abstract void showElement(Graphics g);
+    public abstract void onDraw(Graphics g);
 
     public float getX() {
         return x;
@@ -136,12 +169,24 @@ public abstract class ElementObj {
         this.sprite = sprite;
     }
 
-    public EntityState getEntityState() {
-        return entityState;
+    public ElementState getElementState() {
+        return elementState;
     }
 
-    public void setEntityState(EntityState entityState) {
-        this.entityState = entityState;
+    public List<ElementObj> getChildren() {
+        return children;
+    }
+
+    public Map<String, ComponentBase> getComponents() {
+        return components;
+    }
+
+    public ComponentBase getComponent(String name) {
+        return components.get(name);
+    }
+
+    public void setElementState(ElementState elementState) {
+        this.elementState = elementState;
     }
 
     /**
@@ -159,5 +204,18 @@ public abstract class ElementObj {
      */
     public boolean checkCollisionWith(ElementObj obj) {
         return this.getRectangle().intersects(obj.getRectangle());
+    }
+
+    public ComponentBase addComponent(String name) {
+        ComponentBase cb = null;
+        try {
+            Class<?> c =  Class.forName("com.tedu.element.component."+name);
+            cb = (ComponentBase) c.newInstance();
+            this.components.put(name, cb);
+            cb.setParent(this);
+        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+            e.printStackTrace();
+        }
+        return cb;
     }
 }

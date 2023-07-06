@@ -2,6 +2,8 @@ package com.tedu.element.tank;
 
 import com.tedu.element.ElementObj;
 import com.tedu.element.bullet.Bullet;
+import com.tedu.element.component.HealthValue;
+import com.tedu.manager.GameLoad;
 
 import javax.swing.*;
 import java.util.Random;
@@ -13,14 +15,15 @@ public class EnemyTank extends TankBase{
 
     @Override
     public ElementObj create(String data) {
-        Random ran = new Random();
-        int x = ran.nextInt(800);
-        int y = ran.nextInt(800);
-        this.setX(x);
-        this.setY(y);
-        this.setW(50);
-        this.setH(50);
-        this.setSprite(new ImageIcon("image/tank/bot/bot_up.png"));
+        String[] split = data.split(",");
+        this.setX(Float.parseFloat(split[0]));
+        this.setY(Float.parseFloat(split[1]));
+        this.setSprite(GameLoad.imgMap.get("bot_" + split[2]));
+        this.setW(getSprite().getIconWidth());
+        this.setH(getSprite().getIconHeight());
+
+        HealthValue hv = (HealthValue)this.getComponent("HealthValue");
+        hv.setMaxHealth(2, true);
         return this;
     }
 
@@ -28,7 +31,7 @@ public class EnemyTank extends TankBase{
     public void onCollision(ElementObj other) {
         if (other instanceof Bullet) {
             Bullet b = (Bullet)other;
-            damageBy(b.getDamage());
+            //damageBy(b.getDamage());
         }
     }
 }

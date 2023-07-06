@@ -1,12 +1,12 @@
 package com.tedu.controller;
 
 import com.tedu.element.ElementObj;
-import com.tedu.element.tank.EnemyTank;
-import com.tedu.element.tank.PlayerTank;
+import com.tedu.element.ElementState;
+
 import com.tedu.manager.ElementManager;
 import com.tedu.manager.ElementType;
+import com.tedu.manager.GameLoad;
 
-import javax.swing.*;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +18,7 @@ import java.util.Map;
  */
 public class GameThread extends Thread {
 
-    private ElementManager em = null;
+    private final ElementManager em;
     private int gameRunFrameSleep = 16; // 1000 / 16 =  60Hz
     private long gameTime = 0L; // 帧计时器
 
@@ -46,9 +46,35 @@ public class GameThread extends Thread {
 
     /**
      * 执行游戏的加载
+     * 1.资源文件
+     * 2.元素类
+     * 3.地图
+     * 4.其他
      */
     private void gameLoad() {
-        load();
+        GameLoad.LoadImage();
+        GameLoad.LoadElement();
+        GameLoad.LoadMap(5);
+
+        GameLoad.LoadPlayer();
+        GameLoad.LoadEnemies();
+//        // 调用所有元素的onLoad
+//        Map<ElementType, List<ElementObj>> all = em.getGameElements();
+//        for (ElementType type : ElementType.values()) { // values()按枚举定义顺序返回枚举数组
+//            List<ElementObj> list = all.get(type);
+//            for (int i = list.size() - 1; i >= 0; i--) {
+//                ElementObj obj = list.get(i);
+//                obj.onLoad();
+//            }
+//        }
+//        // 调用所有元素的onCreate
+//        for (ElementType type : ElementType.values()) { // values()按枚举定义顺序返回枚举数组
+//            List<ElementObj> list = all.get(type);
+//            for (int i = list.size() - 1; i >= 0; i--) {
+//                ElementObj obj = list.get(i);
+//                obj.onCreate();
+//            }
+//        }
     }
 
     /**
@@ -57,9 +83,15 @@ public class GameThread extends Thread {
     private void gameRun() {
         while (true) {
             Map<ElementType, List<ElementObj>> all = em.getGameElements();
+            List<ElementObj> enemies = em.getElementsByType(ElementType.ENEMY);
+            List<ElementObj> bullets = em.getElementsByType(ElementType.BULLET);
+            List<ElementObj> maps = em.getElementsByType(ElementType.MAP);
+            List<ElementObj> players = em.getElementsByType(ElementType.PLAYER);
 
             updateElements(all);
-            testElementsCollision();
+            testElementsCollision(enemies, bullets);
+            testElementsCollision(maps, bullets);
+//            testElementsCollision(enemies, b);
 
             gameTime++;
             try {
@@ -86,19 +118,6 @@ public class GameThread extends Thread {
         return this;
     }
 
-    public void load() {
-        // 图片导入
-        ImageIcon icon = new ImageIcon("image/tank/play1/player1_up.png");
-        // 创建元素
-        ElementObj player = new PlayerTank(100, 100, 50, 50, icon);
-        em.addElement(player, ElementType.PLAYER);
-
-        for (int i=0; i<10; i++) {
-            ElementObj enemy = new EnemyTank().create("");
-            em.addElement(enemy, ElementType.ENEMY);
-        }
-    }
-
     /**
      * 逐元素执行帧更新
      * @param all 所有类型元素List的Map集合
@@ -108,7 +127,7 @@ public class GameThread extends Thread {
             List<ElementObj> list = all.get(type);
             for (int i = list.size() - 1; i >= 0; i--) {
                 ElementObj obj = list.get(i);
-                if (obj.getEntityState() == EntityState.DIED) {
+                if (obj.getElementState() == ElementState.DIED) {
                     obj.onDestroy();
                     list.remove(i);
                     continue;
@@ -122,17 +141,15 @@ public class GameThread extends Thread {
      * 元素碰撞检测
      * 暂时先写子弹和敌人的检测
      */
-    public void testElementsCollision() {
-        List<ElementObj> enemies = em.getElementsByType(ElementType.ENEMY);
-        List<ElementObj> bullets = em.getElementsByType(ElementType.BULLET);
+    public void testElementsCollision(List<ElementObj> listA, List<ElementObj> listB) {
 
-        for (int i=0; i<enemies.size(); i++) {
-            for (int j=0; j<bullets.size(); j++) {
-                ElementObj enemy = enemies.get(i);
-                ElementObj bullet = bullets.get(j);
-                if (enemy.checkCollisionWith(bullet)) {
-                    enemy.onCollision(bullet);
-                    bullet.onCollision(enemy);
+        for (int i=0; i<listA.size(); i++) {
+            for (int j=0; j<listB.size(); j++) {
+                ElementObj a = listA.get(i);
+                ElementObj b = listB.get(j);
+                if (a.checkCollisionWith(b)) {
+                    a.onCollision(b);
+                    b.onCollision(a);
                     break;
                 }
             }
