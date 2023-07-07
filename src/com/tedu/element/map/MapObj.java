@@ -1,18 +1,33 @@
 package com.tedu.element.map;
 
 import com.tedu.element.ElementObj;
+import com.tedu.element.component.BoxCollider;
 import com.tedu.element.component.HealthValue;
+import com.tedu.element.component.Sprite;
+import com.tedu.geometry.Vector2;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class MapObj extends ElementObj {
     HealthValue hv = null;
+    Sprite sp = null;
+    BoxCollider col = null;
+
+    public MapObj() {
+        hv = (HealthValue) addComponent("HealthValue");
+        sp = (Sprite) addComponent("Sprite");
+        col = (BoxCollider) addComponent("BoxCollider", "shape:Rectangle,w:20,h:20");
+    }
 
     @Override
     public void onDraw(Graphics g) {
-        g.drawImage(getSprite().getImage(),
-                Math.round(getX()), Math.round(getY()),
+        if (sp == null || sp.getSprite() == null)
+            return;
+        Vector2 center = sp.getCenter();
+        g.drawImage(sp.getSprite().getImage(),
+                Math.round(transform.getX() - sp.getWidth() * transform.getScaleX() * center.x),
+                Math.round(transform.getY() - sp.getWidth() * transform.getScaleX() * center.y),
                 getW(), getH(), null);
     }
 
@@ -23,7 +38,6 @@ public class MapObj extends ElementObj {
 
     @Override
     public ElementObj create(String data) {
-        hv = (HealthValue) addComponent("HealthValue");
         hv.setMaxHealth(1, true);
 
         String[] arr = data.split(",");
@@ -53,9 +67,8 @@ public class MapObj extends ElementObj {
         int h = sprite.getIconHeight();
         this.setH(h);
         this.setW(w);
-        this.setX(x);
-        this.setY(y);
-        this.setSprite(sprite);
+        this.transform.setPos(new Vector2(x, y));
+        sp.setSprite(sprite);
         return this;
     }
 }

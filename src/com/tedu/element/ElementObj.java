@@ -1,9 +1,13 @@
 package com.tedu.element;
 
+import com.tedu.element.component.BoxCollider;
 import com.tedu.element.component.ComponentBase;
+import com.tedu.element.component.Transform;
+import com.tedu.geometry.Vector2;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.Area;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,8 +17,6 @@ import java.util.Map;
  * @author LSR
  */
 public abstract class ElementObj {
-    private float x = 0;
-    private float y = 0;
     private int w = 0;
     private int h = 0;
     private ImageIcon sprite = null;
@@ -22,25 +24,27 @@ public abstract class ElementObj {
     private List<ElementObj> children = null;
     private Map<String, ComponentBase> components = null;
 
+    public Transform transform = null;
+
     public ElementObj() {
         components = new HashMap<>();
+        transform = (Transform) addComponent("Transform");
     }
 
     /**
      * 带参构造函数
      * @param x 左上角x坐标
      * @param y 左上角y坐标
-     * @param w 元素宽度
-     * @param h 元素高度
      * @param sprite 元素贴图
      */
-    public ElementObj(float x, float y, int w, int h, ImageIcon sprite) {
+    public ElementObj(float x, float y, ImageIcon sprite) {
         this();
-        this.x = x;
-        this.y = y;
-        this.w = w;
-        this.h = h;
-        this.sprite = sprite;
+        this.w = 0;
+        this.h = 0;
+        if(this.transform != null) {
+            this.transform.setPos(new Vector2(x, y));
+        }
+        //this.sprite = sprite;
     }
 
     public ElementObj create() {
@@ -129,22 +133,6 @@ public abstract class ElementObj {
      */
     public abstract void onDraw(Graphics g);
 
-    public float getX() {
-        return x;
-    }
-
-    public void setX(float x) {
-        this.x = x;
-    }
-
-    public float getY() {
-        return y;
-    }
-
-    public void setY(float y) {
-        this.y = y;
-    }
-
     public int getW() {
         return w;
     }
@@ -159,14 +147,6 @@ public abstract class ElementObj {
 
     public void setH(int h) {
         this.h = h;
-    }
-
-    public ImageIcon getSprite() {
-        return sprite;
-    }
-
-    public void setSprite(ImageIcon sprite) {
-        this.sprite = sprite;
     }
 
     public ElementState getElementState() {
@@ -193,8 +173,19 @@ public abstract class ElementObj {
      * 获取本元素的外包围盒
      * @return 元素的碰撞矩形对象
      */
-    public Rectangle getRectangle() {
-        return new Rectangle(Math.round(x), Math.round(y), w, h);
+    public Shape getShape() {
+        BoxCollider col = (BoxCollider) getComponent("BoxCollider");
+        if (col == null)
+            return null;
+
+//        Sprite sp = (Sprite) this.getComponent("Sprite");
+//        if (this.transform == null || sp == null)
+//            return new Rectangle(0,0,0,0);
+//
+//        Rectangle r = new Rectangle(Math.round(transform.getX()), Math.round(transform.getY()),
+//                Math.round(sp.getWidth() * transform.getScaleX()),
+//                Math.round(sp.getHeight() * transform.getScaleY()));
+        return col.getShape();
     }
 
     /**
@@ -203,14 +194,23 @@ public abstract class ElementObj {
      * @return 是否碰撞的判断
      */
     public boolean checkCollisionWith(ElementObj obj) {
-        return this.getRectangle().intersects(obj.getRectangle());
+        BoxCollider col = (BoxCollider) getComponent("BoxCollider");
+        if (col == null)
+            return false;
+        Area shapeA = new Area(this.getShape());
+        Area shapeB = new Area(obj.getShape());
+        shapeA.intersect(shapeB);
+        return !shapeA.isEmpty();
+    }
+    public ComponentBase addComponent(String name) {
+        return addComponent(name, "");
     }
 
-    public ComponentBase addComponent(String name) {
+    public ComponentBase addComponent(String name, String data) {
         ComponentBase cb = null;
         try {
             Class<?> c =  Class.forName("com.tedu.element.component."+name);
-            cb = (ComponentBase) c.newInstance();
+            cb = ((ComponentBase) c.newInstance()).create(data);
             this.components.put(name, cb);
             cb.setParent(this);
         } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {

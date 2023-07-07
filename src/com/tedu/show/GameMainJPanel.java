@@ -1,6 +1,7 @@
 package com.tedu.show;
 
 import com.tedu.element.ElementObj;
+import com.tedu.element.component.ComponentBase;
 import com.tedu.manager.ElementManager;
 import com.tedu.manager.ElementType;
 
@@ -40,7 +41,12 @@ public class GameMainJPanel extends JPanel implements Runnable{
             List<ElementObj> list = all.get(type);
             for(int i=0; i<list.size(); i++) {
                 ElementObj obj = list.get(i);
+                // 先调用该元素的onDraw
                 obj.onDraw(g);
+                // 调用该元素下所有组件的onDraw
+                for(ComponentBase cp : obj.getComponents().values()) {
+                    cp.onDraw(g);
+                }
             }
         }
     }

@@ -52,12 +52,12 @@ public class GameThread extends Thread {
      * 4.其他
      */
     private void gameLoad() {
-        GameLoad.LoadImage();
-        GameLoad.LoadElement();
+        GameLoad.loadImage();
+        GameLoad.loadElement();
         GameLoad.LoadMap(5);
 
-        GameLoad.LoadPlayer();
-        GameLoad.LoadEnemies();
+        GameLoad.loadPlayer();
+        GameLoad.loadEnemies();
 //        // 调用所有元素的onLoad
 //        Map<ElementType, List<ElementObj>> all = em.getGameElements();
 //        for (ElementType type : ElementType.values()) { // values()按枚举定义顺序返回枚举数组

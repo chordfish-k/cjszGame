@@ -15,6 +15,10 @@ public abstract class ComponentBase{
         onCreate();
     }
 
+    public ComponentBase create(String data) {
+        return this;
+    }
+
     public void setParent(ElementObj parent) {
         this.parent = parent;
     }
@@ -30,4 +34,9 @@ public abstract class ComponentBase{
     public void onDestroy() {}
 
     public void onUpdate() {}
+
+    /**
+     * 当该帧执行渲染时执行，可以重写，用于显示测试用图像
+     */
+    public void onDraw(Graphics g) {}
 }

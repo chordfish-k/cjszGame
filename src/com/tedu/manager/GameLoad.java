@@ -1,10 +1,7 @@
 package com.tedu.manager;
 
-import com.tedu.controller.Direction;
 import com.tedu.element.ElementObj;
 import com.tedu.element.map.MapObj;
-import com.tedu.element.tank.EnemyTank;
-import com.tedu.element.tank.PlayerTank;
 import com.tedu.show.GameJFrame;
 
 import javax.swing.*;
@@ -19,14 +16,14 @@ import java.util.*;
  */
 public class GameLoad {
     // 资源管理器
-    private static ElementManager em = ElementManager.getManager();
+    private static final ElementManager em = ElementManager.getManager();
     // 图片集合
     public static Map<String, ImageIcon> imgMap = new HashMap<>();
     // 元素集合
     public static Map<String, Class<?>> objMap = new HashMap<>();
 
     // 读取配置文件的类
-    private static Properties pro = new Properties();
+    private static final Properties pro = new Properties();
 
     /**
      * 传入地图id加载地图
@@ -61,7 +58,7 @@ public class GameLoad {
     /**
      * 加载图片资源
      */
-    public static void LoadImage() {
+    public static void loadImage() {
         String fileName = "com/tedu/text/GameData.re";
         // 用io流获取文件对象，加载包内文件
         ClassLoader classLoader = GameLoad.class.getClassLoader(); // 类加载器
@@ -85,7 +82,7 @@ public class GameLoad {
         pro.clear();
     }
 
-    public static void LoadElement() {
+    public static void loadElement() {
         String fileName = "com/tedu/text/Elements.re";
 
         ClassLoader classLoader = GameLoad.class.getClassLoader(); // 类加载器
@@ -110,7 +107,7 @@ public class GameLoad {
         pro.clear();
     }
 
-    public static void LoadPlayer() {
+    public static void loadPlayer() {
         // 创建元素
         ElementObj obj = createElementByName("player", "20,20,up");
 
@@ -119,7 +116,7 @@ public class GameLoad {
         }
     }
 
-    public static void LoadEnemies() {
+    public static void loadEnemies() {
         Random ran = new Random();
 
         for (int i=0; i<10; i++) {

@@ -2,7 +2,10 @@ package com.tedu.element.tank;
 
 import com.tedu.controller.Direction;
 import com.tedu.element.ElementObj;
+import com.tedu.element.component.BoxCollider;
 import com.tedu.element.component.HealthValue;
+import com.tedu.element.component.Sprite;
+import com.tedu.geometry.Vector2;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,6 +13,8 @@ import java.awt.*;
 public class TankBase extends ElementObj{
 
     HealthValue hv = null;
+    Sprite sp = null;
+    BoxCollider col = null;
 
     protected float speed = 1;
 
@@ -17,26 +22,31 @@ public class TankBase extends ElementObj{
     protected Direction facing = Direction.UP;
 
     public TankBase(){
-        this(0, 0, 0, 0, null);
+        this(0, 0, null);
     }
 
-    public TankBase(float x, float y, int w, int h, ImageIcon sprite) {
-        super(x, y, w, h, sprite);
+    public TankBase(float x, float y, ImageIcon sprite) {
+        super(x, y, sprite);
         hv = (HealthValue) addComponent("HealthValue");
+        sp = (Sprite) addComponent("Sprite");
+        col = (BoxCollider) addComponent("BoxCollider", "shape:Rectangle,offX:-20,offY:-20,w:40,h:40");
+
     }
 
     @Override
     public void onDraw(Graphics g) {
-        g.drawImage(getSprite().getImage(),
-                Math.round(getX()), Math.round(getY()),
+        if (sp == null || sp.getSprite() == null)
+            return;
+        Vector2 center = sp.getCenter();
+        g.drawImage(sp.getSprite().getImage(),
+                Math.round(transform.getX() - sp.getWidth() * transform.getScaleX() * center.x),
+                Math.round(transform.getY() - sp.getHeight() * transform.getScaleY() * center.y),
                 getW(), getH(), null);
     }
 
     @Override
     public void onLoad() {
         super.onLoad();
-
-
     }
 
     @Override
@@ -46,6 +56,7 @@ public class TankBase extends ElementObj{
 
     @Override
     public void onUpdate(long time) {
+        super.onUpdate(time);
         tankBehavior(time);
     }
 

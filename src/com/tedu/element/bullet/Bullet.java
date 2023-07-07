@@ -3,10 +3,10 @@ package com.tedu.element.bullet;
 import com.tedu.controller.Direction;
 import com.tedu.element.ElementState;
 import com.tedu.element.ElementObj;
+import com.tedu.element.component.BoxCollider;
 import com.tedu.element.component.HealthValue;
-import com.tedu.element.map.MapObj;
-import com.tedu.element.tank.TankBase;
 import com.tedu.show.GameJFrame;
+import com.tedu.geometry.Vector2;
 
 import java.awt.*;
 
@@ -19,30 +19,50 @@ public class Bullet extends ElementObj {
     private Direction facing; //朝向
     private int radius = 5; // 子弹半径
 
+    BoxCollider col = null;
+
     public Bullet() {
+        col = (BoxCollider) addComponent("BoxCollider", "shape:Rectangle,w:"+2 * radius+",h:"+2 * radius);
     }
 
     @Override
     public ElementObj create(String data) {
         // 解析数据
         String[] split = data.split(",");
+        float x = 0f;
+        float y = 0f;
+
+//        ((Rectangle)col.getShape()).setSize(2 * radius, 2 * radius);
+
         for (String piece : split) {
             String[] kv = piece.split(":");
 
             switch (kv[0]) {
                 case "x":
-                    this.setX(Float.parseFloat(kv[1]));
+                    x = Float.parseFloat(kv[1]);
                     break;
                 case "y":
-                    this.setY(Float.parseFloat(kv[1]));
+                    y = Float.parseFloat(kv[1]);
                     break;
                 case "f":
                     this.facing = Direction.valueOf(kv[1]);
                     break;
             }
         }
+        switch (this.facing) {
+            case UP:
+            case DOWN:
+                col.setOffset(new Vector2(-radius, 0));
+                break;
+            case LEFT:
+            case RIGHT:
+                col.setOffset(new Vector2(0, -radius));
+                break;
+        }
+
         this.setW(10);
         this.setH(10);
+        this.transform.setPos(new Vector2(x, y));
         this.speed = 10;
         this.damage = 1;
         this.radius = 5;
@@ -52,10 +72,13 @@ public class Bullet extends ElementObj {
 
     @Override
     public void onDraw(Graphics g) {
+        if (transform == null)
+            return;
+
         g.setColor(Color.red);
 
-        int x = Math.round(this.getX());
-        int y = Math.round(this.getY());
+        int x = Math.round(transform.getX());
+        int y = Math.round(transform.getY());
 
         switch (this.facing) {
             case UP:
@@ -72,6 +95,7 @@ public class Bullet extends ElementObj {
 
     @Override
     public void onUpdate(long time) {
+        super.onUpdate(time);
         checkDead();
         spriteChange(time);
         move();
@@ -84,8 +108,10 @@ public class Bullet extends ElementObj {
     }
 
     private void checkDead() {
-        float x = this.getX();
-        float y = this.getY();
+        if (transform == null)
+            return;
+        float x = transform.getX();
+        float y = transform.getY();
         if (x < 0 || y < 0 || x > GameJFrame.SIZE_W || y > GameJFrame.SIZE_H) {
             this.setElementState(ElementState.DIED);
         }
@@ -95,20 +121,29 @@ public class Bullet extends ElementObj {
         if (this.getElementState() == ElementState.DIED)
             return;
 
+        if (transform == null)
+            return;
+
+        float x = transform.getX();
+        float y = transform.getY();
+
         switch (this.facing) {
             case UP:
-                this.setY(this.getY() - this.speed);
+                y = transform.getY() - this.speed;
                 break;
             case DOWN:
-                this.setY(this.getY() + this.speed);
+                y = transform.getY() + this.speed;
                 break;
             case LEFT:
-                this.setX(this.getX() - this.speed);
+                x= transform.getX() - this.speed;
                 break;
             case RIGHT:
-                this.setX(this.getX() + this.speed);
+                x = transform.getX() + this.speed;
                 break;
         }
+
+        transform.setPos(new Vector2(x, y));
+
     }
 
     @Override
