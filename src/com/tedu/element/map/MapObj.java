@@ -18,7 +18,6 @@ public class MapObj extends ElementObj {
         hv = (HealthValue) addComponent("HealthValue");
         sp = (Sprite) addComponent("Sprite");
         col = (BoxCollider) addComponent("BoxCollider", "shape:Rectangle,offX:10,offY:10,w:20,h:20");
-        addComponent("RigidBody");
     }
 
     @Override
@@ -35,6 +34,11 @@ public class MapObj extends ElementObj {
     @Override
     public void onLoad() {
 
+    }
+
+    @Override
+    public void onCollision(ElementObj other) {
+        super.onCollision(other);
     }
 
     @Override
@@ -71,5 +75,10 @@ public class MapObj extends ElementObj {
         this.transform.setPos(new Vector2(x, y));
         sp.setSprite(sprite);
         return this;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
     }
 }

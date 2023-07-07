@@ -5,6 +5,7 @@ import com.tedu.element.component.ComponentBase;
 import com.tedu.element.component.Transform;
 import com.tedu.geometry.Polygon;
 import com.tedu.geometry.Vector2;
+import com.tedu.manager.ElementType;
 
 import javax.swing.*;
 import java.awt.*;
@@ -24,6 +25,7 @@ public abstract class ElementObj {
     private ElementState elementState = ElementState.LIVING;
     private List<ElementObj> children = null;
     private Map<String, ComponentBase> components = null;
+    private ElementType elementType = ElementType.DEFAULT;
 
     public Transform transform = null;
 
@@ -91,7 +93,7 @@ public abstract class ElementObj {
      * @param key 按键码
      */
     public void onKeyPressed(int key) {
-        //不强制重写
+
     }
 
     /**
@@ -99,7 +101,7 @@ public abstract class ElementObj {
      * @param key 按键码
      */
     public void onKeyReleased(int key) {
-        //不强制重写
+
     }
 
     /**
@@ -148,6 +150,14 @@ public abstract class ElementObj {
 
     public void setH(int h) {
         this.h = h;
+    }
+
+    public ElementType getElementType() {
+        return elementType;
+    }
+
+    public void setElementType(ElementType elementType) {
+        this.elementType = elementType;
     }
 
     public ElementState getElementState() {
@@ -199,10 +209,7 @@ public abstract class ElementObj {
         BoxCollider colB = (BoxCollider) obj.getComponent("BoxCollider");
         if (colA == null || colB == null)
             return false;
-//        Area shapeA = new Area(this.getShape());
-//        Area shapeB = new Area(obj.getShape());
-//        shapeA.intersect(shapeB);
-//        return !shapeA.isEmpty();
+
         return colA.checkCollisionWith(colB);
     }
     public ComponentBase addComponent(String name) {

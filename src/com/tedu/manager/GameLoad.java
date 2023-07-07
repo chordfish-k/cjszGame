@@ -21,6 +21,8 @@ public class GameLoad {
     public static Map<String, ImageIcon> imgMap = new HashMap<>();
     // 元素集合
     public static Map<String, Class<?>> objMap = new HashMap<>();
+    // 碰撞检查集合
+    public static Map<ElementType, List<ElementType>> colMap = new HashMap<>();
 
     // 读取配置文件的类
     private static final Properties pro = new Properties();
@@ -39,7 +41,6 @@ public class GameLoad {
             return;
         }
         try {
-            pro.clear();
             pro.load(maps);
             Enumeration<?> names = pro.propertyNames();
             while (names.hasMoreElements()) {
@@ -53,6 +54,7 @@ public class GameLoad {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        pro.clear();
     }
 
     /**
@@ -82,6 +84,38 @@ public class GameLoad {
         pro.clear();
     }
 
+    public static void loadCollision() {
+        String fileName = "com/tedu/text/Collision.re";
+
+        ClassLoader classLoader = GameLoad.class.getClassLoader(); // 类加载器
+        InputStream ist = classLoader.getResourceAsStream(fileName);
+        if (ist == null) {
+            System.out.println("配置文件读取异常，清重新安装");
+            return;
+        }
+        try {
+            for (ElementType type : em.getGameElements().keySet()) {
+                colMap.put(type, new ArrayList<>());
+            }
+
+            pro.load(ist);
+            Set<Object> set = pro.keySet();
+            for (Object o : set) {
+                ElementType key = ElementType.valueOf(o.toString().toUpperCase());
+
+                String[] colList = pro.getProperty(o.toString()).split(",");
+                for (String col : colList) {
+                    ElementType type = ElementType.valueOf(col.toUpperCase());
+                    colMap.get(key).add(type);
+                }
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        pro.clear();
+    }
+
     public static void loadElement() {
         String fileName = "com/tedu/text/Elements.re";
 
@@ -92,7 +126,6 @@ public class GameLoad {
             return;
         }
         try {
-            pro.clear();
             pro.load(ist);
             Set<Object> set = pro.keySet();
             for (Object o : set) {

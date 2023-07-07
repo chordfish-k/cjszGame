@@ -38,6 +38,10 @@ public class GameMainJPanel extends JPanel implements Runnable{
         Map<ElementType, List<ElementObj>> all = em.getGameElements();
 
         for(ElementType type: ElementType.values()) { // values()按枚举定义顺序返回枚举数组
+            if (type == ElementType.DIE){
+                continue;
+            }
+
             List<ElementObj> list = all.get(type);
             for(int i=0; i<list.size(); i++) {
                 ElementObj obj = list.get(i);

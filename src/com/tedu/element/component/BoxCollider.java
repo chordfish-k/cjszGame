@@ -138,4 +138,8 @@ public class BoxCollider extends ComponentBase{
 
         return this.shape.testPolygon(colB.getShape());
     }
+
+    public void onCollision(ElementObj other) {
+        parent.onCollision(other);
+    }
 }

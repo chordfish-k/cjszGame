@@ -1,17 +1,12 @@
 package com.tedu.element.component;
 
 import com.tedu.element.ElementObj;
-import com.tedu.element.tank.EnemyTank;
-import com.tedu.element.tank.PlayerTank;
-import com.tedu.element.tank.TankBase;
-import com.tedu.geometry.Box;
 import com.tedu.geometry.Polygon;
 import com.tedu.geometry.Vector2;
 import com.tedu.manager.ElementManager;
 import com.tedu.manager.ElementType;
+import com.tedu.manager.GameLoad;
 
-import java.awt.geom.Area;
-import java.util.ArrayList;
 import java.util.List;
 
 public class RigidBody extends ComponentBase{
@@ -125,26 +120,53 @@ public class RigidBody extends ComponentBase{
 
             boolean innerFlag = true;
 
+            if (em == null)
+                continue;
+
+            ElementType thisType = parent.getElementType();
+
             for (ElementType type : em.getGameElements().keySet()) {
+
+                em.setLocked(true);
+
                 List<ElementObj> list =  em.getElementsByType(type);
-                for (ElementObj obj : list) {
-                    if (obj == parent)
+                for (ElementObj obj : list){
+
+                    if (obj == parent) {
                         continue;
+                    }
 
                     BoxCollider boxCollider = (BoxCollider) obj.getComponent("BoxCollider");
-                    RigidBody rigidBody = (RigidBody) obj.getComponent("RigidBody");
-                    if (boxCollider == null || rigidBody == null)
+
+                    ElementType otherType = obj.getElementType();
+
+                    // 按配置文件考虑碰撞
+                    if (!GameLoad.colMap.get(thisType).contains(otherType)) {
                         continue;
+                    }
+
+                    // 不考虑缺少碰撞器组件的
+                    if (boxCollider == null) {
+                        continue;
+                    }
 
                     if (boxCollider.getShape().testPolygon(shape_)) {
                         innerFlag = false;
-                        System.out.println(obj.getClass().getName() + " coll");
-                        break;
+//                        System.out.println(obj.getClass().getName() + " coll");
+
+                        // 调用碰撞器组件的onCollision()方法
+                        bc.onCollision(obj);
+                        boxCollider.onCollision(parent);
+
                     }
                     if (!innerFlag) break;
                 }
+
+                em.setLocked(false);
+
                 if (!innerFlag) break;
             }
+
             // 无任何碰撞
             if (innerFlag) {
                 flag = false;

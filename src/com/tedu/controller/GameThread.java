@@ -23,7 +23,7 @@ public class GameThread extends Thread {
     private int gameRunFrameSleep = 16; // 1000 / 16 =  60Hz
     private long gameTime = 0L; // 帧计时器
 
-    private Thread physicTh = null;
+    private PhysicsThread physicTh = null;
 
     public GameThread() {
         em = ElementManager.getManager();
@@ -57,41 +57,15 @@ public class GameThread extends Thread {
     private void gameLoad() {
         GameLoad.loadImage();
         GameLoad.loadElement();
-        GameLoad.LoadMap(5);
+        GameLoad.LoadMap(1);
 
         GameLoad.loadPlayer();
         GameLoad.loadEnemies();
+        GameLoad.loadCollision();
 
-        Map<ElementType, List<ElementObj>> all = em.getGameElements();
-        // 调用所有元素的onCreate
-        for (ElementType type : ElementType.values()) { // values()按枚举定义顺序返回枚举数组
-            List<ElementObj> list = all.get(type);
-            for (int i = list.size() - 1; i >= 0; i--) {
-                ElementObj obj = list.get(i);
-                obj.onCreate();
-            }
-        }
+        //callOnCreate();
 
-        physicTh = new Thread(() -> {
-
-
-            while (true) {
-                for (ElementType type : ElementType.values()) { // values()按枚举定义顺序返回枚举数组
-                    List<ElementObj> list = all.get(type);
-                    for (int i = list.size() - 1; i >= 0; i--) {
-                        ElementObj obj = list.get(i);
-                        RigidBody rb = (RigidBody) obj.getComponent("RigidBody");
-                        if (rb != null)
-                            rb.onFixUpdate();
-                    }
-                }
-                try {
-                    sleep(10);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+        physicTh = new PhysicsThread();
         physicTh.start();
 
 //        // 调用所有元素的onLoad
@@ -111,31 +85,43 @@ public class GameThread extends Thread {
      */
     private void gameRun() {
         while (true) {
-            Map<ElementType, List<ElementObj>> all = em.getGameElements();
-            List<ElementObj> enemies = em.getElementsByType(ElementType.ENEMY);
-            List<ElementObj> bullets = em.getElementsByType(ElementType.BULLET);
-            List<ElementObj> maps = em.getElementsByType(ElementType.MAP);
-            List<ElementObj> players = em.getElementsByType(ElementType.PLAYER);
+            if (em != null) {
+                Map<ElementType, List<ElementObj>> all = em.getGameElements();
 
-            updateElements(all);
-            testElementsCollision(enemies, bullets);
-            testElementsCollision(maps, bullets);
-//            testElementsCollision(enemies, b);
+                //PhyUpdateElements(all);
+                updateElements(all);
 
-            gameTime++;
-            try {
-                sleep(gameRunFrameSleep);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                try {
+                    sleep(gameRunFrameSleep);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
+            gameTime++;
         }
     }
+
 
     /**
      * 游戏场景结束
      */
     private void gameOver() {
 
+    }
+
+
+    /**
+     * 调用所有元素和组件的onCreate
+     */
+    public void callOnCreate() {
+        Map<ElementType, List<ElementObj>> all = em.getGameElements();
+        for (ElementType type : ElementType.values()) { // values()按枚举定义顺序返回枚举数组
+            List<ElementObj> list = all.get(type);
+            for (int i = list.size() - 1; i >= 0; i--) {
+                ElementObj obj = list.get(i);
+                obj.onCreate();
+            }
+        }
     }
 
     public int getGameRunFrameSleep() {
@@ -156,13 +142,32 @@ public class GameThread extends Thread {
             List<ElementObj> list = all.get(type);
             for (int i = list.size() - 1; i >= 0; i--) {
                 ElementObj obj = list.get(i);
-                if (obj.getElementState() == ElementState.DIED) {
+                if (obj.getElementState() == ElementState.DIED && !em.isLocked()) {
                     obj.onDestroy();
                     list.remove(i);
                     continue;
                 }
                 obj.onUpdate(gameTime); // 调用ElementObj的帧更新方法
             }
+        }
+    }
+
+    private void PhyUpdateElements(Map<ElementType, List<ElementObj>> all) {
+        for (ElementType type : ElementType.values()) { // values()按枚举定义顺序返回枚举数组
+            List<ElementObj> list = all.get(type);
+            for (int i = list.size() - 1; i >= 0; i--) {
+                ElementObj obj = list.get(i);
+                RigidBody rb = (RigidBody) obj.getComponent("RigidBody");
+
+                if (rb != null) // 调用所有有RigidBody组件元素的onFixUpdate()方法
+                    rb.onFixUpdate();
+            }
+        }
+
+        try {
+            sleep(5);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 

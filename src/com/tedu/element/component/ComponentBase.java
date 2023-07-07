@@ -35,7 +35,22 @@ public abstract class ComponentBase{
 
     public void onUpdate() {}
 
+    /**
+     * 当物理帧更新时触发
+     */
     public void onFixUpdate() {}
+
+    /**
+     * 当监听到键盘按键按下时触发
+     * @param key 按键码
+     */
+    public void onKeyPressed(int key) { }
+
+    /**
+     * 当监听到键盘按键松开时触发
+     * @param key 按键码
+     */
+    public void onKeyReleased(int key) { }
 
     /**
      * 当该帧执行渲染时执行，可以重写，用于显示测试用图像

@@ -16,6 +16,9 @@ public class ElementManager {
     // 实现单例
     private static ElementManager EM = null;
 
+    // 资源缩
+    private boolean locked = false;
+
     /**
      * 用于获取ElementManager单例
      * @return ElementManager唯一单例
@@ -31,22 +34,17 @@ public class ElementManager {
         init(); // 实例化方法
     }
 
-//    static {// 类加载时被执行
-//        EM = new ElementManager(); // 只会执行一次
-//    }
 
     /**
      * 初始化方法 <p>
      * 用于将来可能出现的功能扩展，要重写init方法准备的
      */
     public void init() {
-        gameElements = new HashMap<ElementType, List<ElementObj>>();
+        gameElements = new HashMap<>();
 
         // 将每种元素集合都放入map中
-        // gameElements.put(ElementType.PLAYER, new ArrayList<ElementObj>());
-
         for(ElementType type : ElementType.values()) {
-            gameElements.put(type, new ArrayList<ElementObj>());
+            gameElements.put(type, new ArrayList<>());
         }
     }
 
@@ -67,6 +65,8 @@ public class ElementManager {
      */
     public void addElement(ElementObj obj, ElementType type) {
         gameElements.get(type).add(obj);
+        obj.setElementType(type);
+        obj.onCreate();
     }
 
     /**
@@ -78,7 +78,13 @@ public class ElementManager {
         return gameElements.get(type);
     }
 
+    public boolean isLocked() {
+        return locked;
+    }
 
+    public void setLocked(boolean locked) {
+        this.locked = locked;
+    }
 }
 
 
