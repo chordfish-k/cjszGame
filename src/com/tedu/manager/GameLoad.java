@@ -119,9 +119,11 @@ public class GameLoad {
     public static void loadEnemies() {
         Random ran = new Random();
 
-        for (int i=0; i<10; i++) {
-            int x = ran.nextInt(GameJFrame.SIZE_W);
-            int y = ran.nextInt(GameJFrame.SIZE_H);
+        for (int i=0; i<1; i++) {
+            int x = 100;
+            int y = 50;
+//            int x = ran.nextInt(GameJFrame.SIZE_W);
+//            int y = ran.nextInt(GameJFrame.SIZE_H);
             ElementObj enemy = createElementByName("enemy", x+","+y+","+"up");
             em.addElement(enemy, ElementType.ENEMY);
         }

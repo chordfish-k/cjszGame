@@ -1,5 +1,7 @@
 package com.tedu.geometry;
 
+import java.awt.*;
+
 public class Box extends Polygon{
     protected int w;
     protected int h;
@@ -43,5 +45,31 @@ public class Box extends Polygon{
      */
     public Vector2 getSize() {
         return new Vector2(w, h);
+    }
+
+    public Shape getShape() {
+        float cx = center.x;
+        float cy = center.y;
+        float hw = w / 2f;
+        float hh = h / 2f;
+        Rectangle rect = new Rectangle(
+                (int)(cx - hw), (int)(cy - hh), w, h
+        );
+        return (Shape)(rect);
+    }
+
+    @Override
+    public void setCenter(Vector2 center) {
+        super.setCenter(center);
+    }
+
+    @Override
+    public String toString() {
+        return "Box{" +
+                "x=" + this.points.get(0).x +
+                ",y=" +this.points.get(0).y +
+                ",w=" + w +
+                ", h=" + h +
+                '}';
     }
 }

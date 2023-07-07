@@ -17,7 +17,8 @@ public class MapObj extends ElementObj {
     public MapObj() {
         hv = (HealthValue) addComponent("HealthValue");
         sp = (Sprite) addComponent("Sprite");
-        col = (BoxCollider) addComponent("BoxCollider", "shape:Rectangle,w:20,h:20");
+        col = (BoxCollider) addComponent("BoxCollider", "shape:Rectangle,offX:10,offY:10,w:20,h:20");
+        addComponent("RigidBody");
     }
 
     @Override

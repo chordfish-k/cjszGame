@@ -3,6 +3,7 @@ package com.tedu.controller;
 import com.tedu.element.ElementObj;
 import com.tedu.element.ElementState;
 
+import com.tedu.element.component.RigidBody;
 import com.tedu.manager.ElementManager;
 import com.tedu.manager.ElementType;
 import com.tedu.manager.GameLoad;
@@ -21,6 +22,8 @@ public class GameThread extends Thread {
     private final ElementManager em;
     private int gameRunFrameSleep = 16; // 1000 / 16 =  60Hz
     private long gameTime = 0L; // 帧计时器
+
+    private Thread physicTh = null;
 
     public GameThread() {
         em = ElementManager.getManager();
@@ -58,6 +61,39 @@ public class GameThread extends Thread {
 
         GameLoad.loadPlayer();
         GameLoad.loadEnemies();
+
+        Map<ElementType, List<ElementObj>> all = em.getGameElements();
+        // 调用所有元素的onCreate
+        for (ElementType type : ElementType.values()) { // values()按枚举定义顺序返回枚举数组
+            List<ElementObj> list = all.get(type);
+            for (int i = list.size() - 1; i >= 0; i--) {
+                ElementObj obj = list.get(i);
+                obj.onCreate();
+            }
+        }
+
+        physicTh = new Thread(() -> {
+
+
+            while (true) {
+                for (ElementType type : ElementType.values()) { // values()按枚举定义顺序返回枚举数组
+                    List<ElementObj> list = all.get(type);
+                    for (int i = list.size() - 1; i >= 0; i--) {
+                        ElementObj obj = list.get(i);
+                        RigidBody rb = (RigidBody) obj.getComponent("RigidBody");
+                        if (rb != null)
+                            rb.onFixUpdate();
+                    }
+                }
+                try {
+                    sleep(10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        physicTh.start();
+
 //        // 调用所有元素的onLoad
 //        Map<ElementType, List<ElementObj>> all = em.getGameElements();
 //        for (ElementType type : ElementType.values()) { // values()按枚举定义顺序返回枚举数组
@@ -67,14 +103,7 @@ public class GameThread extends Thread {
 //                obj.onLoad();
 //            }
 //        }
-//        // 调用所有元素的onCreate
-//        for (ElementType type : ElementType.values()) { // values()按枚举定义顺序返回枚举数组
-//            List<ElementObj> list = all.get(type);
-//            for (int i = list.size() - 1; i >= 0; i--) {
-//                ElementObj obj = list.get(i);
-//                obj.onCreate();
-//            }
-//        }
+
     }
 
     /**

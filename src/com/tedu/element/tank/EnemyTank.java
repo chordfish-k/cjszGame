@@ -3,6 +3,7 @@ package com.tedu.element.tank;
 import com.tedu.element.ElementObj;
 import com.tedu.element.bullet.Bullet;
 import com.tedu.element.component.HealthValue;
+import com.tedu.element.component.RigidBody;
 import com.tedu.element.component.Sprite;
 import com.tedu.element.component.Transform;
 import com.tedu.geometry.Vector2;
@@ -15,10 +16,13 @@ public class EnemyTank extends TankBase{
 
     Sprite sp = null;
     HealthValue hv = null;
+    RigidBody rb = null;
 
     public EnemyTank() {
         sp = (Sprite) getComponent("Sprite");
         hv = (HealthValue) getComponent("HealthValue");
+        rb = (RigidBody) addComponent("RigidBody");
+        // rb.setForce(new Vector2(0, 1f));
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.tedu.element;
 import com.tedu.element.component.BoxCollider;
 import com.tedu.element.component.ComponentBase;
 import com.tedu.element.component.Transform;
+import com.tedu.geometry.Polygon;
 import com.tedu.geometry.Vector2;
 
 import javax.swing.*;
@@ -173,7 +174,7 @@ public abstract class ElementObj {
      * 获取本元素的外包围盒
      * @return 元素的碰撞矩形对象
      */
-    public Shape getShape() {
+    public Polygon getShape() {
         BoxCollider col = (BoxCollider) getComponent("BoxCollider");
         if (col == null)
             return null;
@@ -194,13 +195,15 @@ public abstract class ElementObj {
      * @return 是否碰撞的判断
      */
     public boolean checkCollisionWith(ElementObj obj) {
-        BoxCollider col = (BoxCollider) getComponent("BoxCollider");
-        if (col == null)
+        BoxCollider colA = (BoxCollider) getComponent("BoxCollider");
+        BoxCollider colB = (BoxCollider) obj.getComponent("BoxCollider");
+        if (colA == null || colB == null)
             return false;
-        Area shapeA = new Area(this.getShape());
-        Area shapeB = new Area(obj.getShape());
-        shapeA.intersect(shapeB);
-        return !shapeA.isEmpty();
+//        Area shapeA = new Area(this.getShape());
+//        Area shapeB = new Area(obj.getShape());
+//        shapeA.intersect(shapeB);
+//        return !shapeA.isEmpty();
+        return colA.checkCollisionWith(colB);
     }
     public ComponentBase addComponent(String name) {
         return addComponent(name, "");

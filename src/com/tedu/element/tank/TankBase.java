@@ -29,7 +29,7 @@ public class TankBase extends ElementObj{
         super(x, y, sprite);
         hv = (HealthValue) addComponent("HealthValue");
         sp = (Sprite) addComponent("Sprite");
-        col = (BoxCollider) addComponent("BoxCollider", "shape:Rectangle,offX:-20,offY:-20,w:40,h:40");
+        col = (BoxCollider) addComponent("BoxCollider", "shape:Rectangle,w:36,h:36");
 
     }
 

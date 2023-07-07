@@ -2,6 +2,7 @@ package com.tedu.element.component;
 
 import com.tedu.element.ElementObj;
 import com.tedu.geometry.Box;
+import com.tedu.geometry.Polygon;
 import com.tedu.geometry.Vector2;
 
 import java.awt.*;
@@ -14,12 +15,12 @@ import java.awt.geom.AffineTransform;
  */
 public class BoxCollider extends ComponentBase{
 
-    Rectangle shape = null;
+    Box shape = null;
     Vector2 center = new Vector2();
     Vector2 offset = new Vector2();
 
     public BoxCollider() {
-        shape = new Rectangle(0, 0, 10, 10);
+        shape = new Box(new Vector2(0, 0), 10, 10);
     }
 
     @Override
@@ -52,7 +53,7 @@ public class BoxCollider extends ComponentBase{
             }
         }
         if (shape .equals("Rectangle")) {
-            this.shape = new Rectangle(w, h);
+            this.shape.setSize(new Vector2(w, h));
             this.setOffset(new Vector2(offX, offY));
         }
 
@@ -64,12 +65,13 @@ public class BoxCollider extends ComponentBase{
     }
 
     public Vector2 getSize() {
-        int h = this.shape.height;
-        int w = this.shape.width;
+        Vector2 size = this.shape.getSize();
+        int h = (int)size.y;
+        int w = (int)size.x;
         return new Vector2(w, h);
     }
 
-    public Shape getShape() {
+    public Box getShape() {
         return shape;
     }
 
@@ -119,16 +121,21 @@ public class BoxCollider extends ComponentBase{
     }
 
     public BoxCollider moveBy(Vector2 vec) {
-        Point loc = this.shape.getLocation();
-        this.shape.setLocation((int)(loc.x + vec.x), (int)(loc.y + vec.y));
+        Vector2 loc = this.shape.getCenter();
+        this.shape.setCenter(new Vector2(loc.x + vec.x, loc.y + vec.y));
         return this;
     }
 
     @Override
     public void onDraw(Graphics g) {
         super.onDraw(g);
-//        g.setColor(Color.RED);
-//        Graphics2D g2d = (Graphics2D)g;
-//        g2d.draw(shape);
+        g.setColor(Color.RED);
+        Graphics2D g2d = (Graphics2D)g;
+        g2d.draw(shape.getShape());
+    }
+
+    public boolean checkCollisionWith(BoxCollider colB) {
+
+        return this.shape.testPolygon(colB.getShape());
     }
 }

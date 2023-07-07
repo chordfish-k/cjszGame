@@ -4,6 +4,7 @@ import com.tedu.controller.Direction;
 import com.tedu.element.ElementObj;
 import com.tedu.element.bullet.Bullet;
 import com.tedu.element.component.HealthValue;
+import com.tedu.element.component.RigidBody;
 import com.tedu.element.component.Sprite;
 import com.tedu.manager.ElementManager;
 import com.tedu.manager.ElementType;
@@ -27,10 +28,13 @@ public class PlayerTank extends TankBase{
 
     Sprite sp = null;
     HealthValue hv = null;
+    RigidBody rb = null;
 
     public PlayerTank() {
         sp = (Sprite) getComponent("Sprite");
         hv = (HealthValue) getComponent("HealthValue");
+        rb = (RigidBody) addComponent("RigidBody");
+        this.speed = 25;
     }
 
     @Override
@@ -109,20 +113,27 @@ public class PlayerTank extends TankBase{
 
     @Override
     protected void move(long time) {
-        if (!this.moving) return;
+        if (!this.moving) {
+            rb.setVelocity(new Vector2(0, 0));
+            return;
+        }
         if (this.transform == null) return;
 
         if (getFacing() == Direction.LEFT && transform.getX() > 0) {
-            transform.setPos(new Vector2(transform.getX() - getSpeed(), transform.getY()));
+            rb.setVelocity(new Vector2(-getSpeed(), 0));
+            //transform.setPos(new Vector2(transform.getX() - getSpeed(), transform.getY()));
         }
         if (getFacing() == Direction.RIGHT && transform.getX() + getW() + 25 < GameJFrame.SIZE_W) {
-            transform.setPos(new Vector2(transform.getX() + getSpeed(), transform.getY()));
+            rb.setVelocity(new Vector2(getSpeed(), 0));
+            //transform.setPos(new Vector2(transform.getX() + getSpeed(), transform.getY()));
         }
         if (getFacing() == Direction.UP && transform.getY() > 0) {
-            transform.setPos(new Vector2(transform.getX(), transform.getY() - getSpeed()));
+            rb.setVelocity(new Vector2(0, -getSpeed()));
+            //transform.setPos(new Vector2(transform.getX(), transform.getY() - getSpeed()));
         }
         if (getFacing() == Direction.DOWN && transform.getY() + getH() + 50 < GameJFrame.SIZE_H) {
-            transform.setPos(new Vector2(transform.getX(), transform.getY() + getSpeed()));
+            rb.setVelocity(new Vector2(0, getSpeed()));
+            //transform.setPos(new Vector2(transform.getX(), transform.getY() + getSpeed()));
         }
 
         // 根据方向改变贴图

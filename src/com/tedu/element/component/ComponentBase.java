@@ -35,6 +35,8 @@ public abstract class ComponentBase{
 
     public void onUpdate() {}
 
+    public void onFixUpdate() {}
+
     /**
      * 当该帧执行渲染时执行，可以重写，用于显示测试用图像
      */
