@@ -4,6 +4,7 @@ import com.tedu.element.ElementObj;
 import com.tedu.element.component.ComponentBase;
 import com.tedu.manager.ElementManager;
 import com.tedu.manager.ElementType;
+import com.tedu.manager.UIManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,6 +20,7 @@ import java.util.Map;
 public class GameMainJPanel extends JPanel implements Runnable{
     // 联动管理器
     private ElementManager em;
+    private UIManager um;
     // 刷新间隔
     private int refreshSleep = 15;
 
@@ -28,6 +30,14 @@ public class GameMainJPanel extends JPanel implements Runnable{
 
     public void init() {
         em = ElementManager.getManager();
+        um = UIManager.getManager();
+
+        this.setLayout(null);
+
+        JLabel healthLab = new JLabel();this.add(healthLab);
+        healthLab.setText("Health:2");
+        healthLab.setBounds(5,GameJFrame.SIZE_H-50,100,GameJFrame.INFO_H);
+        um.addUI("healthLabel", healthLab);
     }
 
 
@@ -53,6 +63,8 @@ public class GameMainJPanel extends JPanel implements Runnable{
                 }
             }
         }
+
+
     }
 
     @Override

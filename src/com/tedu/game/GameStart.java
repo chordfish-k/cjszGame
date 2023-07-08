@@ -5,6 +5,8 @@ import com.tedu.controller.GameThread;
 import com.tedu.show.GameJFrame;
 import com.tedu.show.GameMainJPanel;
 
+import java.awt.*;
+
 /**
  * 游戏入口类
  */

@@ -93,7 +93,9 @@ public abstract class ElementObj {
      * @param key 按键码
      */
     public void onKeyPressed(int key) {
-
+        for(String cpKey : components.keySet()) {
+            components.get(cpKey).onKeyPressed(key);
+        }
     }
 
     /**
@@ -101,7 +103,9 @@ public abstract class ElementObj {
      * @param key 按键码
      */
     public void onKeyReleased(int key) {
-
+        for(String cpKey : components.keySet()) {
+            components.get(cpKey).onKeyReleased(key);
+        }
     }
 
     /**
@@ -127,7 +131,10 @@ public abstract class ElementObj {
      * 当触发碰撞后触发
      */
     public void onCollision(ElementObj other) {
-
+        for(String cpKey : components.keySet()) {
+            if (!cpKey.equals("BoxCollider"))
+                components.get(cpKey).onCollision(other);
+        }
     }
 
     /**

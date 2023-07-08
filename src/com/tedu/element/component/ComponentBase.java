@@ -56,4 +56,7 @@ public abstract class ComponentBase{
      * 当该帧执行渲染时执行，可以重写，用于显示测试用图像
      */
     public void onDraw(Graphics g) {}
+
+    public void onCollision(ElementObj other) {
+    }
 }

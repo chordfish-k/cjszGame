@@ -78,6 +78,11 @@ public class MapObj extends ElementObj {
     }
 
     @Override
+    public void destroy() {
+        super.destroy();
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
     }

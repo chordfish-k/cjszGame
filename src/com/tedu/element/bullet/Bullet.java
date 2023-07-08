@@ -18,13 +18,18 @@ public class Bullet extends ElementObj {
     private int damage; // 攻击力
     private int speed; // 移速
     private Direction facing; //朝向
-    private int radius = 5; // 子弹半径
+    private int radius = 10; // 子弹半径
+    private boolean shouldDie = false;
+    private String by = "";
 
     BoxCollider col = null;
     RigidBody rb = null;
 
     public Bullet() {
-        col = (BoxCollider) addComponent("BoxCollider", "shape:Rectangle,w:"+2 * radius+",h:"+2 * radius);
+        col = (BoxCollider) addComponent(
+                "BoxCollider",
+                "shape:Rectangle,w:"+2 * radius +",h:"+2 * radius);
+        col.setTrigger(true);
         rb = (RigidBody) addComponent("RigidBody");
     }
 
@@ -47,6 +52,9 @@ public class Bullet extends ElementObj {
                     break;
                 case "f":
                     this.facing = Direction.valueOf(kv[1]);
+                    break;
+                case "by":
+                    this.by = kv[1];
                     break;
             }
         }
@@ -91,16 +99,18 @@ public class Bullet extends ElementObj {
     @Override
     public void onUpdate(long time) {
         super.onUpdate(time);
+        checkDead();
+        if (shouldDie) destroy();
     }
 
 
     private void checkDead() {
-        if (transform == null)
+        if (transform == null || this.getElementState() != ElementState.DIED)
             return;
         float x = transform.getX();
         float y = transform.getY();
         if (x < 0 || y < 0 || x > GameJFrame.SIZE_W || y > GameJFrame.SIZE_H) {
-            this.setElementState(ElementState.DIED);
+            destroy();
         }
     }
 
@@ -110,12 +120,15 @@ public class Bullet extends ElementObj {
 
     @Override
     public void onCollision(ElementObj other) {
+        // 检测是不是自己人
+        if (by.equals(other.getElementType().name())) {
+            return;
+        }
         // 被子弹打到的元素，如果有HealthValue组件，则扣血
         HealthValue hv = (HealthValue) other.getComponent("HealthValue");
         if (hv != null) {
             hv.damageBy(getDamage());
         }
-        // 消除自身
         destroy();
     }
 

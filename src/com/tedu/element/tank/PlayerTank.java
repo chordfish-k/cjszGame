@@ -9,9 +9,11 @@ import com.tedu.element.component.Sprite;
 import com.tedu.manager.ElementManager;
 import com.tedu.manager.ElementType;
 import com.tedu.manager.GameLoad;
+import com.tedu.manager.UIManager;
 import com.tedu.show.GameJFrame;
 import com.tedu.geometry.Vector2;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 
@@ -26,6 +28,8 @@ public class PlayerTank extends TankBase{
     private long attackSpan = 0; // 攻击间隔
     private long lastAttackTime = 0;
 
+    private JLabel jl = null;
+
     Sprite sp = null;
     HealthValue hv = null;
     RigidBody rb = null;
@@ -33,27 +37,33 @@ public class PlayerTank extends TankBase{
     public PlayerTank() {
         sp = (Sprite) getComponent("Sprite");
         hv = (HealthValue) getComponent("HealthValue");
+        hv.setMaxHealth(10, true);
         rb = (RigidBody) addComponent("RigidBody");
         this.speed = 25;
+
+        jl = (JLabel) UIManager.getManager().getUI("healthLabel");
+        jl.setText("Health:" + hv.getHealth());
+
+        hv.setOnHealthChangeEvent(new Runnable() {
+            @Override
+            public void run() {
+                if (jl != null) {
+                    jl.setText("Health:" + hv.getHealth());
+                }
+            }
+        });
     }
 
     @Override
     public ElementObj create(String data) {
         String[] split = data.split(",");
 
-
-
         transform.setX(Float.parseFloat(split[0]))
                 .setY(Float.parseFloat(split[1]));
         sp.setSprite(GameLoad.imgMap.get(split[2]))
                 .setCenter(new Vector2(0.5f, 0.5f));
 
-        // TODO: 改成设置碰撞体的宽高
-        this.setW(sp.getSprite().getIconWidth());
-        this.setH(sp.getSprite().getIconHeight());
-
         this.attackSpan = 10;
-        hv.setMaxHealth(10, true);
         return this;
     }
 
@@ -64,22 +74,27 @@ public class PlayerTank extends TankBase{
 
     @Override
     public void onKeyPressed(int key) {
+        super.onKeyPressed(key);
         switch (key) {
             case KeyEvent.VK_W:
                 this.moving = true;
                 setFacing(Direction.UP);
+                rb.setVelocity(new Vector2(0, -getSpeed()));
                 break;
             case KeyEvent.VK_S:
                 this.moving = true;
                 setFacing(Direction.DOWN);
+                rb.setVelocity(new Vector2(0, getSpeed()));
                 break;
             case KeyEvent.VK_A:
                 this.moving = true;
                 setFacing(Direction.LEFT);
+                rb.setVelocity(new Vector2(-getSpeed(), 0));
                 break;
             case KeyEvent.VK_D:
                 this.moving = true;
                 setFacing(Direction.RIGHT);
+                rb.setVelocity(new Vector2(getSpeed(), 0));
                 break;
             case KeyEvent.VK_SPACE:
                 this.attacking = true;
@@ -109,40 +124,24 @@ public class PlayerTank extends TankBase{
                 this.attacking = false;
                 break;
         }
+        if (!moving) {
+            rb.setVelocity(new Vector2(0, 0));
+        }
     }
 
     @Override
     protected void move(long time) {
         if (!this.moving) {
-            rb.setVelocity(new Vector2(0, 0));
             return;
         }
         if (this.transform == null) return;
 
-        if (getFacing() == Direction.LEFT && transform.getX() > 0) {
-            rb.setVelocity(new Vector2(-getSpeed(), 0));
-            //transform.setPos(new Vector2(transform.getX() - getSpeed(), transform.getY()));
-        }
-        if (getFacing() == Direction.RIGHT && transform.getX() + getW() + 25 < GameJFrame.SIZE_W) {
-            rb.setVelocity(new Vector2(getSpeed(), 0));
-            //transform.setPos(new Vector2(transform.getX() + getSpeed(), transform.getY()));
-        }
-        if (getFacing() == Direction.UP && transform.getY() > 0) {
-            rb.setVelocity(new Vector2(0, -getSpeed()));
-            //transform.setPos(new Vector2(transform.getX(), transform.getY() - getSpeed()));
-        }
-        if (getFacing() == Direction.DOWN && transform.getY() + getH() + 50 < GameJFrame.SIZE_H) {
-            rb.setVelocity(new Vector2(0, getSpeed()));
-            //transform.setPos(new Vector2(transform.getX(), transform.getY() + getSpeed()));
-        }
-
-        // 根据方向改变贴图
-        sp.setSprite(GameLoad.imgMap.get(facing.name().toLowerCase()));
     }
 
     @Override
     protected void spriteChange(long time) {
-
+        // 根据方向改变贴图
+        sp.setSprite(GameLoad.imgMap.get(facing.name().toLowerCase()));
     }
 
     @Override
@@ -157,18 +156,8 @@ public class PlayerTank extends TankBase{
 
         float x = transform.getX();
         float y = transform.getY();
-//        int H = (int)(sp.getHeight() * tr.getScaleY());
-//        int W = (int)(sp.getWidth() * tr.getScaleX());
-//        int halfH = H / 2;
-//        int halfW = W / 2;
-//
-//        switch (getFacing()) {
-//            case UP: x += halfW; break;
-//            case DOWN: x += halfW; y += getH() - 10; break;
-//            case LEFT: y += halfH; break;
-//            case RIGHT: y += halfH; x += getW() - 10; break;
-//        }
-        String dataStr = "x:" + x + ",y:" + y + ",f:" + getFacing().name();
+
+        String dataStr = "x:" + x + ",y:" + y + ",f:" + getFacing().name() + ",by:PLAYER";
 
         ElementObj ele = new Bullet().create(dataStr);
 

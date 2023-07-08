@@ -41,7 +41,8 @@ public class TankBase extends ElementObj{
         g.drawImage(sp.getSprite().getImage(),
                 Math.round(transform.getX() - sp.getWidth() * transform.getScaleX() * center.x),
                 Math.round(transform.getY() - sp.getHeight() * transform.getScaleY() * center.y),
-                getW(), getH(), null);
+                (int)(sp.getWidth() * transform.getScaleX()),
+                (int)(sp.getHeight() * transform.getScaleY()), null);
     }
 
     @Override

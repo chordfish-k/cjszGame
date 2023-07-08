@@ -60,23 +60,13 @@ public class GameThread extends Thread {
         GameLoad.LoadMap(1);
 
         GameLoad.loadPlayer();
-        GameLoad.loadEnemies();
+        //GameLoad.loadEnemies();
         GameLoad.loadCollision();
 
-        //callOnCreate();
+        callOnLoad();
 
         physicTh = new PhysicsThread();
-        physicTh.start();
-
-//        // 调用所有元素的onLoad
-//        Map<ElementType, List<ElementObj>> all = em.getGameElements();
-//        for (ElementType type : ElementType.values()) { // values()按枚举定义顺序返回枚举数组
-//            List<ElementObj> list = all.get(type);
-//            for (int i = list.size() - 1; i >= 0; i--) {
-//                ElementObj obj = list.get(i);
-//                obj.onLoad();
-//            }
-//        }
+        //physicTh.start();
 
     }
 
@@ -111,15 +101,15 @@ public class GameThread extends Thread {
 
 
     /**
-     * 调用所有元素和组件的onCreate
+     * 调用所有元素和组件的onLoad
      */
-    public void callOnCreate() {
+    public void callOnLoad() {
         Map<ElementType, List<ElementObj>> all = em.getGameElements();
         for (ElementType type : ElementType.values()) { // values()按枚举定义顺序返回枚举数组
             List<ElementObj> list = all.get(type);
             for (int i = list.size() - 1; i >= 0; i--) {
                 ElementObj obj = list.get(i);
-                obj.onCreate();
+                obj.onLoad();
             }
         }
     }
@@ -142,12 +132,27 @@ public class GameThread extends Thread {
             List<ElementObj> list = all.get(type);
             for (int i = list.size() - 1; i >= 0; i--) {
                 ElementObj obj = list.get(i);
+                obj.onUpdate(gameTime); // 调用ElementObj的帧更新方法
+                RigidBody rb = (RigidBody) obj.getComponent("RigidBody");
+
+                if (rb != null) // 调用所有有RigidBody组件元素的onFixUpdate()方法
+                    rb.onFixUpdate();
+            }
+        }
+
+        for (ElementType type : ElementType.values()) { // values()按枚举定义顺序返回枚举数组
+            List<ElementObj> list = all.get(type);
+//            for (int i = list.size() - 1; i >= 0; i--) {
+            int p = list.size();
+            for (int i = 0; i < p; i++) {
+                ElementObj obj = list.get(i);
+
                 if (obj.getElementState() == ElementState.DIED && !em.isLocked()) {
                     obj.onDestroy();
                     list.remove(i);
-                    continue;
+                    i--;
+                    p = list.size();
                 }
-                obj.onUpdate(gameTime); // 调用ElementObj的帧更新方法
             }
         }
     }

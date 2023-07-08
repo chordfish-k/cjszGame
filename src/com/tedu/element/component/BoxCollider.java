@@ -2,11 +2,10 @@ package com.tedu.element.component;
 
 import com.tedu.element.ElementObj;
 import com.tedu.geometry.Box;
-import com.tedu.geometry.Polygon;
 import com.tedu.geometry.Vector2;
 
 import java.awt.*;
-import java.awt.geom.AffineTransform;
+
 
 /**
  * 碰撞器组件
@@ -15,9 +14,11 @@ import java.awt.geom.AffineTransform;
  */
 public class BoxCollider extends ComponentBase{
 
-    Box shape = null;
-    Vector2 center = new Vector2();
-    Vector2 offset = new Vector2();
+    private Box shape = null;
+    private float rotation = 0f;
+    private Vector2 center = new Vector2();
+    private Vector2 offset = new Vector2();
+    private boolean isTrigger = false;
 
     public BoxCollider() {
         shape = new Box(new Vector2(0, 0), 10, 10);
@@ -110,6 +111,19 @@ public class BoxCollider extends ComponentBase{
         return offset;
     }
 
+    public boolean isTrigger() {
+        return isTrigger;
+    }
+
+    public BoxCollider setTrigger(boolean trigger) {
+        isTrigger = trigger;
+        return this;
+    }
+
+    public float getRotation() {
+        return rotation;
+    }
+
     /**
      * 设置碰撞形状距离原点的偏移量
      * @param offset 偏移量
@@ -129,9 +143,9 @@ public class BoxCollider extends ComponentBase{
     @Override
     public void onDraw(Graphics g) {
         super.onDraw(g);
-        g.setColor(Color.RED);
-        Graphics2D g2d = (Graphics2D)g;
-        g2d.draw(shape.getShape());
+//        g.setColor(Color.RED);
+//        Graphics2D g2d = (Graphics2D)g;
+//        g2d.draw(shape.getShape());
     }
 
     public boolean checkCollisionWith(BoxCollider colB) {
@@ -141,5 +155,17 @@ public class BoxCollider extends ComponentBase{
 
     public void onCollision(ElementObj other) {
         parent.onCollision(other);
+    }
+
+    @Override
+    public void onFixUpdate() {
+        Transform tr = parent.transform;
+        if (tr != null) {
+            float nowAng = tr.getRotate();
+            float dr = nowAng - rotation;
+            this.shape.rotateBy(dr); // 将形状旋转
+            this.rotation = nowAng;
+        }
+        super.onFixUpdate();
     }
 }

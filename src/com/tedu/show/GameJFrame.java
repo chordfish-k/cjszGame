@@ -3,6 +3,7 @@ package com.tedu.show;
 import com.tedu.manager.ElementManager;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -17,6 +18,7 @@ import java.awt.event.MouseMotionListener;
 public class GameJFrame extends JFrame {
     public static int SIZE_W = 900;
     public static int SIZE_H = 600;
+    public static int INFO_H = 30;
     public static String TITLE = "测试游戏";
 
     private JPanel panel = null; // 正在显示的面板
@@ -33,7 +35,7 @@ public class GameJFrame extends JFrame {
      * 窗体初始化
      */
     public void init() {
-        this.setSize(SIZE_W, SIZE_H);
+        this.setSize(SIZE_W, SIZE_H + INFO_H);
         this.setTitle(TITLE);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLocationRelativeTo(null); // 居中显示

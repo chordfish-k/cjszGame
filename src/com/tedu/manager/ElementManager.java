@@ -16,7 +16,7 @@ public class ElementManager {
     // 实现单例
     private static ElementManager EM = null;
 
-    // 资源缩
+    // 资源锁
     private boolean locked = false;
 
     /**

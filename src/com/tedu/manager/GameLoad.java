@@ -1,13 +1,17 @@
 package com.tedu.manager;
 
 import com.tedu.element.ElementObj;
+import com.tedu.element.map.BarrierObj;
 import com.tedu.element.map.MapObj;
+import com.tedu.geometry.Vector2;
 import com.tedu.show.GameJFrame;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import java.util.List;
 
 /**
  * 加载器，读取配置文件的工具类
@@ -46,15 +50,40 @@ public class GameLoad {
             while (names.hasMoreElements()) {
                 String key = names.nextElement().toString();
                 String[] arrs = pro.getProperty(key).split(";");
-                for(int i=0; i<arrs.length; i++){
-                    ElementObj element =  new MapObj().create(key+ "," +arrs[i]);
-                    em.addElement(element,ElementType.MAP);
+                if (key.equals("BOT")) {
+                    for (String arr : arrs) {
+                        ElementObj enemy = createElementByName("enemy", arr + "," + "up");
+                        em.addElement(enemy, ElementType.ENEMY);
+                    }
+                    continue;
+                }
+                for (String arr : arrs) {
+                    ElementObj element = new MapObj().create(key + "," + arr);
+                    em.addElement(element, ElementType.MAP);
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
         pro.clear();
+
+        //创建地图边界
+        int barrierWidth = 10;
+        int offsetH = -40;
+        int offsetW = -10;
+        BarrierObj left  = new BarrierObj().setRect(
+                new Rectangle(-barrierWidth,0, barrierWidth, GameJFrame.SIZE_H));
+        BarrierObj right = new BarrierObj().setRect(
+                new Rectangle(GameJFrame.SIZE_W + offsetW,0, barrierWidth, GameJFrame.SIZE_H));
+        BarrierObj up    = new BarrierObj().setRect(
+                new Rectangle(0,-barrierWidth, GameJFrame.SIZE_W, barrierWidth));
+        BarrierObj down  = new BarrierObj().setRect(
+                new Rectangle(0, GameJFrame.SIZE_H + offsetH, GameJFrame.SIZE_W, barrierWidth));
+
+        em.addElement(left,ElementType.MAP);
+        em.addElement(right,ElementType.MAP);
+        em.addElement(up,ElementType.MAP);
+        em.addElement(down,ElementType.MAP);
     }
 
     /**
@@ -149,15 +178,16 @@ public class GameLoad {
         }
     }
 
-    public static void loadEnemies() {
+    public static void loadEnemies(List<Vector2> posList) {
         Random ran = new Random();
 
-        for (int i=0; i<1; i++) {
-            int x = 100;
-            int y = 50;
+        for (Vector2 p : posList) {
+//            int x = 100;
+//            int y = 50;
 //            int x = ran.nextInt(GameJFrame.SIZE_W);
 //            int y = ran.nextInt(GameJFrame.SIZE_H);
-            ElementObj enemy = createElementByName("enemy", x+","+y+","+"up");
+
+            ElementObj enemy = createElementByName("enemy", p.x+","+p.y+","+"up");
             em.addElement(enemy, ElementType.ENEMY);
         }
     }

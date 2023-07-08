@@ -1,28 +1,42 @@
 package com.tedu.element.tank;
 
+import com.tedu.controller.Direction;
 import com.tedu.element.ElementObj;
 import com.tedu.element.bullet.Bullet;
 import com.tedu.element.component.HealthValue;
 import com.tedu.element.component.RigidBody;
 import com.tedu.element.component.Sprite;
-import com.tedu.element.component.Transform;
 import com.tedu.geometry.Vector2;
+import com.tedu.manager.ElementManager;
+import com.tedu.manager.ElementType;
 import com.tedu.manager.GameLoad;
 
-import javax.swing.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 public class EnemyTank extends TankBase{
+
+    private Random ran = null;
+    private long localTime = 0L;
+    private int ranSpan = 80;
+    private int ranSpanOffset = 20;
+    private float turnRan = 0.4f;
+    private float moveRan = 0.8f;
+    private float attackSpan = 0.5f;
+    private PlayerTank pt = null;
 
     Sprite sp = null;
     HealthValue hv = null;
     RigidBody rb = null;
 
     public EnemyTank() {
+        ran = new Random();
         sp = (Sprite) getComponent("Sprite");
         hv = (HealthValue) getComponent("HealthValue");
         rb = (RigidBody) addComponent("RigidBody");
-        // rb.setForce(new Vector2(0, 1f));
+        this.setSpeed(25);
     }
 
     @Override
@@ -34,8 +48,6 @@ public class EnemyTank extends TankBase{
 
         sp.setSprite(GameLoad.imgMap.get("bot_" + split[2]))
                 .setCenter(new Vector2(0.5f, 0.5f));
-        this.setW(sp.getSprite().getIconWidth());
-        this.setH(sp.getSprite().getIconHeight());
 
         hv.setMaxHealth(2, true);
         return this;
@@ -43,5 +55,106 @@ public class EnemyTank extends TankBase{
 
     @Override
     public void onCollision(ElementObj other) {
+
+    }
+
+    @Override
+    public void onUpdate(long time) {
+        super.onUpdate(time);
+
+        // 获取玩家
+        if (pt == null) {
+            List<ElementObj> pl = ElementManager.getManager().getElementsByType(ElementType.PLAYER);
+            if (pl.size() > 0) {
+                pt = (PlayerTank) pl.get(0);
+            }
+        }
+    }
+
+    @Override
+    protected void spriteChange(long time) {
+        // 根据方向改变贴图
+        sp.setSprite(GameLoad.imgMap.get("bot_" + facing.name().toLowerCase()));
+    }
+
+    @Override
+    protected void move(long time) {
+        super.move(time);
+
+        if (time - localTime < ranSpan + ran.nextInt(ranSpanOffset))
+            return;
+
+        localTime = time;
+
+
+
+        // 是否转向
+        if (ran.nextFloat() < turnRan) {
+            // 随机方向
+//            List<Direction> dirs = new ArrayList<>();
+//            for (Direction d : Direction.values()) {
+//                if (d != this.getFacing()) {
+//                    dirs.add(d);
+//                }
+//            }
+//            Direction newDir = dirs.get(ran.nextInt(3));
+//            this.setFacing(newDir);
+
+            // 判断该bot与玩家的相对位置
+            Vector2 vec;
+            Direction dir = Direction.UP;
+
+            if (pt != null) {
+                vec = pt.transform.getPos().sub(this.transform.getPos());
+                if (Math.abs(vec.x) > Math.abs(vec.y)) { // 趋向横向移动
+                    if (vec.x > 0) {
+                        dir = Direction.RIGHT;
+                    } else {
+                        dir = Direction.LEFT;
+                    }
+                } else { // 趋向纵向移动
+                    if (vec.y > 0) {
+                        dir = Direction.DOWN;
+                    } else {
+                        dir = Direction.UP;
+                    }
+                }
+            }
+            this.setFacing(dir);
+        }
+
+        // 是否移动
+        if (ran.nextFloat() < moveRan) {
+            switch (this.facing) {
+                case UP:
+                    setFacing(Direction.UP);
+                    rb.setVelocity(new Vector2(0, -getSpeed()));
+                    break;
+                case DOWN:
+                    setFacing(Direction.DOWN);
+                    rb.setVelocity(new Vector2(0, getSpeed()));
+                    break;
+                case LEFT:
+                    setFacing(Direction.LEFT);
+                    rb.setVelocity(new Vector2(-getSpeed(), 0));
+                    break;
+                case RIGHT:
+                    setFacing(Direction.RIGHT);
+                    rb.setVelocity(new Vector2(getSpeed(), 0));
+                    break;
+            }
+        }
+
+        // 是否攻击
+        if (ran.nextFloat() < attackSpan) {
+            float x = transform.getX();
+            float y = transform.getY();
+
+            String dataStr = "x:" + x + ",y:" + y + ",f:" + getFacing().name() + ",by:ENEMY";
+
+            ElementObj ele = new Bullet().create(dataStr);
+
+            ElementManager.getManager().addElement(ele, ElementType.BULLET);
+        }
     }
 }

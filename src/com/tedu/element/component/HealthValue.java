@@ -8,6 +8,8 @@ public class HealthValue extends ComponentBase{
     protected int health = 1;
     protected int maxHealth = 1;
     protected boolean damageable = true;
+    protected int changeNum = 0;
+    protected Runnable onHealthChangeEvent = null;
 
     public int getHealth() {
         return health;
@@ -36,9 +38,11 @@ public class HealthValue extends ComponentBase{
     }
 
     public HealthValue setHealth(int health) {
-        int oldHealth = this.health;
-        this.health = Math.max(health, 0);
-        this.onHealthChange(this.health, oldHealth);
+        if (health != this.health) {
+            int oldHealth = this.health;
+            this.health = Math.max(health, 0);
+            this.onHealthChange(this.health, oldHealth);
+        }
         return this;
     }
 
@@ -51,6 +55,7 @@ public class HealthValue extends ComponentBase{
     }
 
     public void damageBy(int damage) {
+        System.out.println(parent.getElementType().name()+"," + damage);
         if (!damageable)
             return;
         this.setHealth(this.getHealth() - damage);
@@ -62,6 +67,10 @@ public class HealthValue extends ComponentBase{
      * @param oldHealth 旧最大血量
      */
     public void onHealthChange(int health, int oldHealth) {
+        this.changeNum = oldHealth - health;
+        if (onHealthChangeEvent != null) {
+            onHealthChangeEvent.run();
+        }
         if (health == 0) {
             this.getParent().destroy();
         }
@@ -74,5 +83,13 @@ public class HealthValue extends ComponentBase{
      */
     public void onMaxHealthChange(int health, int oldMaxHealth) {
 
+    }
+
+    public void setOnHealthChangeEvent(Runnable onHealthChangeEvent) {
+        this.onHealthChangeEvent = onHealthChangeEvent;
+    }
+
+    public int getChangeNum() {
+        return changeNum;
     }
 }

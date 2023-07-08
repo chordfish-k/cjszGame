@@ -5,7 +5,7 @@ import com.tedu.geometry.Vector2;
 public class Transform extends ComponentBase{
     protected Vector2 pos = new Vector2();
     protected Vector2 scale = new Vector2(1, 1);
-    protected Vector2 rotate = new Vector2();
+    protected float rotate = 0f; // 角度制
 
     private BoxCollider col = null;
 
@@ -65,13 +65,13 @@ public class Transform extends ComponentBase{
         return this;
     }
 
-    public Vector2 getRotate() {
+    public float getRotate() {
         return rotate;
     }
 
-    public Transform setRotate(Vector2 rotate) {
-        this.rotate.x = rotate.x;
-        this.rotate.y = rotate.y;
+    public Transform setRotate(float rotate) {
+        float oldRot = this.rotate;
+        this.rotate = rotate;
         return this;
     }
 
