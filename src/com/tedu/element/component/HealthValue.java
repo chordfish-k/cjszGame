@@ -55,7 +55,6 @@ public class HealthValue extends ComponentBase{
     }
 
     public void damageBy(int damage) {
-        System.out.println(parent.getElementType().name()+"," + damage);
         if (!damageable)
             return;
         this.setHealth(this.getHealth() - damage);

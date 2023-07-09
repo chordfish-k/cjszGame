@@ -36,9 +36,9 @@ public abstract class ComponentBase{
     public void onUpdate() {}
 
     /**
-     * 当物理帧更新时触发
+     * 当物理更新时触发
      */
-    public void onFixUpdate() {}
+    public void onPhysicsUpdate() {}
 
     /**
      * 当监听到键盘按键按下时触发

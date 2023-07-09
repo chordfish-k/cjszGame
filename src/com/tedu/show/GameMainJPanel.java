@@ -34,10 +34,21 @@ public class GameMainJPanel extends JPanel implements Runnable{
 
         this.setLayout(null);
 
+        // 生命值
         JLabel healthLab = new JLabel();this.add(healthLab);
         healthLab.setText("Health:2");
         healthLab.setBounds(5,GameJFrame.SIZE_H-50,100,GameJFrame.INFO_H);
         um.addUI("healthLabel", healthLab);
+
+        // 统计数据
+        JLabel settlement = new JLabel();this.add(settlement);
+//        settlement.setText("good");
+        settlement.setBounds(
+                GameJFrame.SIZE_W/2-100/2 - 50,
+                GameJFrame.SIZE_H/2-GameJFrame.INFO_H-50,
+                150,GameJFrame.INFO_H * 4);
+
+        um.addUI("settlementLabel", settlement);
     }
 
 

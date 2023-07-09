@@ -24,7 +24,7 @@ public class EnemyTank extends TankBase{
     private int ranSpanOffset = 20;
     private float turnRan = 0.4f;
     private float moveRan = 0.8f;
-    private float attackSpan = 0.5f;
+    private float attackSpan = 0.8f;
     private PlayerTank pt = null;
 
     Sprite sp = null;

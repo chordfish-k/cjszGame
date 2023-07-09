@@ -19,7 +19,7 @@ public class GameJFrame extends JFrame {
     public static int SIZE_W = 900;
     public static int SIZE_H = 600;
     public static int INFO_H = 30;
-    public static String TITLE = "测试游戏";
+    public static String TITLE = "坦克大战";
 
     private JPanel panel = null; // 正在显示的面板
     private KeyListener keyListener = null; // 键盘监听器
@@ -98,5 +98,9 @@ public class GameJFrame extends JFrame {
 
     public void setThread(Thread thread) {
         this.thread = thread;
+    }
+
+    public Thread getThread() {
+        return thread;
     }
 }

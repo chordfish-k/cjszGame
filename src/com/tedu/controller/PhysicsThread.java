@@ -27,7 +27,7 @@ public class PhysicsThread extends Thread{
                         RigidBody rb = (RigidBody) obj.getComponent("RigidBody");
 
                         if (rb != null) // 调用所有有RigidBody组件元素的onFixUpdate()方法
-                            rb.onFixUpdate();
+                            rb.onPhysicsUpdate();
                     }
                 }
                 em.setLocked(false);

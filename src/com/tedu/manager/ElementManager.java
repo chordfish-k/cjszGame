@@ -85,6 +85,12 @@ public class ElementManager {
     public void setLocked(boolean locked) {
         this.locked = locked;
     }
+
+    public void cleanAll() {
+        for (ElementType type : gameElements.keySet()) {
+            gameElements.get(type).clear();
+        }
+    }
 }
 
 

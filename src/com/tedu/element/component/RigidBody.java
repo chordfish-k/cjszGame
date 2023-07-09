@@ -44,7 +44,7 @@ public class RigidBody extends ComponentBase{
     }
 
     @Override
-    public void onFixUpdate() {
+    public void onPhysicsUpdate() {
         super.onUpdate();
 
         long newTime = System.currentTimeMillis();

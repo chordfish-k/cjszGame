@@ -3,11 +3,14 @@ package com.tedu.controller;
 import com.tedu.element.ElementObj;
 import com.tedu.element.ElementState;
 
+import com.tedu.element.component.HealthValue;
 import com.tedu.element.component.RigidBody;
 import com.tedu.manager.ElementManager;
 import com.tedu.manager.ElementType;
 import com.tedu.manager.GameLoad;
+import com.tedu.manager.UIManager;
 
+import javax.swing.*;
 import java.util.List;
 import java.util.Map;
 
@@ -20,18 +23,26 @@ import java.util.Map;
 public class GameThread extends Thread {
 
     private final ElementManager em;
+    private final UIManager um;
     private int gameRunFrameSleep = 16; // 1000 / 16 =  60Hz
     private long gameTime = 0L; // 帧计时器
 
     private PhysicsThread physicTh = null;
 
+    private boolean isThreadRunning = true; // 主进程是否继续
+    private boolean isRunning = false; // 游戏是否继续
+    private boolean isWon = false;
+    private int levelNum = 1;
+    private int sumScore = 0;
+
     public GameThread() {
         em = ElementManager.getManager();
+        um = UIManager.getManager();
     }
 
     @Override
     public void run() { // 游戏主线程
-        while (true) {
+        while (isThreadRunning) {
             // 游戏开始前：读进度条，加载游戏资源
             gameLoad();
             // 游戏进行时：游戏过程中
@@ -57,29 +68,43 @@ public class GameThread extends Thread {
     private void gameLoad() {
         GameLoad.loadImage();
         GameLoad.loadElement();
-        GameLoad.LoadMap(1);
+        GameLoad.LoadMap(this.levelNum);
 
         GameLoad.loadPlayer();
-        //GameLoad.loadEnemies();
         GameLoad.loadCollision();
 
         callOnLoad();
 
-        physicTh = new PhysicsThread();
-        //physicTh.start();
+//        physicTh = new PhysicsThread();
+//        physicTh.start();
 
+        isRunning = true;
+        isWon = false;
+        gameTime = 0;
+
+        ((JLabel)um.getUI("settlementLabel")).setText("");
     }
 
     /**
      * 游戏进行时
      */
     private void gameRun() {
-        while (true) {
+        while (isRunning) {
             if (em != null) {
                 Map<ElementType, List<ElementObj>> all = em.getGameElements();
 
-                //PhyUpdateElements(all);
                 updateElements(all);
+
+                // 如果全部敌人都被打败，则胜利并结束
+                if (em.getElementsByType(ElementType.ENEMY).size() == 0) {
+                    isWon = true;
+                    break;
+                }
+                // 如果全部玩家都被打败，则失败并结束
+                else if (em.getElementsByType(ElementType.PLAYER).size() == 0) {
+                    isWon = true;
+                    break;
+                }
 
                 try {
                     sleep(gameRunFrameSleep);
@@ -96,7 +121,37 @@ public class GameThread extends Thread {
      * 游戏场景结束
      */
     private void gameOver() {
+        // 先进入结算5秒
+        if (isWon) {
+            // 赢了5秒后进入下一关
+            if (levelNum < 2){
+                levelNum ++;
+            }
+            else {
+                this.isThreadRunning = false;
+            }
+            HealthValue hv = (HealthValue) em.getElementsByType(ElementType.PLAYER).get(0).getComponent("HealthValue");
+            int score = hv.getHealth();
+            sumScore += score;
+            ((JLabel)um.getUI("settlementLabel")).setText("your score: "+sumScore+" (+"+score+")");
 
+        } else {
+            this.isThreadRunning = false;
+            // 输了5秒后退出
+            ((JLabel)um.getUI("settlementLabel")).setText("your score: "+sumScore);
+        }
+
+        em.cleanAll();
+
+        try {
+            sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void finishGameRun() {
+        this.isRunning = false;
     }
 
 
@@ -134,15 +189,13 @@ public class GameThread extends Thread {
                 ElementObj obj = list.get(i);
                 obj.onUpdate(gameTime); // 调用ElementObj的帧更新方法
                 RigidBody rb = (RigidBody) obj.getComponent("RigidBody");
-
                 if (rb != null) // 调用所有有RigidBody组件元素的onFixUpdate()方法
-                    rb.onFixUpdate();
+                    rb.onPhysicsUpdate();
             }
         }
 
         for (ElementType type : ElementType.values()) { // values()按枚举定义顺序返回枚举数组
             List<ElementObj> list = all.get(type);
-//            for (int i = list.size() - 1; i >= 0; i--) {
             int p = list.size();
             for (int i = 0; i < p; i++) {
                 ElementObj obj = list.get(i);
@@ -154,25 +207,6 @@ public class GameThread extends Thread {
                     p = list.size();
                 }
             }
-        }
-    }
-
-    private void PhyUpdateElements(Map<ElementType, List<ElementObj>> all) {
-        for (ElementType type : ElementType.values()) { // values()按枚举定义顺序返回枚举数组
-            List<ElementObj> list = all.get(type);
-            for (int i = list.size() - 1; i >= 0; i--) {
-                ElementObj obj = list.get(i);
-                RigidBody rb = (RigidBody) obj.getComponent("RigidBody");
-
-                if (rb != null) // 调用所有有RigidBody组件元素的onFixUpdate()方法
-                    rb.onFixUpdate();
-            }
-        }
-
-        try {
-            sleep(5);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
     }
 

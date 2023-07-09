@@ -158,7 +158,7 @@ public class BoxCollider extends ComponentBase{
     }
 
     @Override
-    public void onFixUpdate() {
+    public void onPhysicsUpdate() {
         Transform tr = parent.transform;
         if (tr != null) {
             float nowAng = tr.getRotate();
@@ -166,6 +166,6 @@ public class BoxCollider extends ComponentBase{
             this.shape.rotateBy(dr); // 将形状旋转
             this.rotation = nowAng;
         }
-        super.onFixUpdate();
+        super.onPhysicsUpdate();
     }
 }

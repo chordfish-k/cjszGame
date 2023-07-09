@@ -30,5 +30,7 @@ public class GameStart {
         gj.setKeyListener(listener);
         gj.setThread(thread);
         gj.start(); // 显示窗体
+
+        Game.getInstance().setGameJFrame(gj);
     }
 }
