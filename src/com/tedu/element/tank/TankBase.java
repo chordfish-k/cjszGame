@@ -19,7 +19,7 @@ public class TankBase extends ElementObj{
     protected float speed = 1;
 
     // 当前面向的方向
-    protected Direction facing = Direction.UP;
+    protected Direction facing = Direction.LEFT;
 
     public TankBase(){
         this(0, 0, null);

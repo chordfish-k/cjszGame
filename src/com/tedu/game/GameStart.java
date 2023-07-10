@@ -17,6 +17,7 @@ public class GameStart {
      */
     public static void main(String[] args) {
         GameJFrame gj = new GameJFrame();
+        Game.getInstance().setGameJFrame(gj);
         // 实例化面板
         GameMainJPanel mainJPanel = new GameMainJPanel()
                                         .setRefreshSleep(10);
@@ -31,6 +32,6 @@ public class GameStart {
         gj.setThread(thread);
         gj.start(); // 显示窗体
 
-        Game.getInstance().setGameJFrame(gj);
+
     }
 }

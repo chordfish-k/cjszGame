@@ -6,6 +6,7 @@ import com.tedu.element.bullet.Bullet;
 import com.tedu.element.component.HealthValue;
 import com.tedu.element.component.RigidBody;
 import com.tedu.element.component.Sprite;
+import com.tedu.game.Game;
 import com.tedu.geometry.Vector2;
 import com.tedu.manager.ElementManager;
 import com.tedu.manager.ElementType;
@@ -25,6 +26,7 @@ public class EnemyTank extends TankBase{
     private float turnRan = 0.4f;
     private float moveRan = 0.8f;
     private float attackSpan = 0.8f;
+    private int type = 1;
     private PlayerTank pt = null;
 
     Sprite sp = null;
@@ -45,6 +47,7 @@ public class EnemyTank extends TankBase{
 
         transform.setX(Float.parseFloat(split[0]))
                 .setY(Float.parseFloat(split[1]));
+        type = Integer.parseInt(split[2]);
 
         sp.setSprite(GameLoad.imgMap.get("bot_" + split[2]))
                 .setCenter(new Vector2(0.5f, 0.5f));
@@ -74,7 +77,7 @@ public class EnemyTank extends TankBase{
     @Override
     protected void spriteChange(long time) {
         // 根据方向改变贴图
-        sp.setSprite(GameLoad.imgMap.get("bot_" + facing.name().toLowerCase()));
+        sp.setSprite(GameLoad.imgMap.get("bot" + type + "_" + facing.name().toLowerCase()));
     }
 
     @Override
@@ -90,7 +93,15 @@ public class EnemyTank extends TankBase{
 
         // 是否转向
         if (ran.nextFloat() < turnRan) {
-            // 随机方向
+
+            Direction dir = this.getFacing();
+
+            if (type == 1) {
+                if (dir == Direction.LEFT) dir = Direction.RIGHT;
+                else if (dir == Direction.RIGHT) dir = Direction.LEFT;
+            }
+            else if (type == 2) {
+                // 随机方向
 //            List<Direction> dirs = new ArrayList<>();
 //            for (Direction d : Direction.values()) {
 //                if (d != this.getFacing()) {
@@ -100,26 +111,28 @@ public class EnemyTank extends TankBase{
 //            Direction newDir = dirs.get(ran.nextInt(3));
 //            this.setFacing(newDir);
 
-            // 判断该bot与玩家的相对位置
-            Vector2 vec;
-            Direction dir = Direction.UP;
+                // 判断该bot与玩家的相对位置
+                Vector2 vec;
 
-            if (pt != null) {
-                vec = pt.transform.getPos().sub(this.transform.getPos());
-                if (Math.abs(vec.x) > Math.abs(vec.y)) { // 趋向横向移动
-                    if (vec.x > 0) {
-                        dir = Direction.RIGHT;
-                    } else {
-                        dir = Direction.LEFT;
-                    }
-                } else { // 趋向纵向移动
-                    if (vec.y > 0) {
-                        dir = Direction.DOWN;
-                    } else {
-                        dir = Direction.UP;
+
+                if (pt != null) {
+                    vec = pt.transform.getPos().sub(this.transform.getPos());
+                    if (Math.abs(vec.x) > Math.abs(vec.y)) { // 趋向横向移动
+                        if (vec.x > 0) {
+                            dir = Direction.RIGHT;
+                        } else {
+                            dir = Direction.LEFT;
+                        }
+                    } else { // 趋向纵向移动
+                        if (vec.y > 0) {
+                            dir = Direction.DOWN;
+                        } else {
+                            dir = Direction.UP;
+                        }
                     }
                 }
             }
+
             this.setFacing(dir);
         }
 

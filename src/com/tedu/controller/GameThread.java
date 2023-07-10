@@ -210,6 +210,10 @@ public class GameThread extends Thread {
         }
     }
 
+    public int getLevelNum() {
+        return levelNum;
+    }
+
     /**
      * 元素碰撞检测
      * 暂时先写子弹和敌人的检测

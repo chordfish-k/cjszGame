@@ -11,7 +11,7 @@ public class Game {
 
     public static Game getInstance() {
         if (game == null) {
-            return new Game();
+            game =  new Game();
         }
         return game;
     }
@@ -39,5 +39,10 @@ public class Game {
     public void finishGameRun() {
         ((GameThread)this.gameJFrame.getThread())
                 .finishGameRun();
+    }
+
+    public int getLevelNum() {
+        GameThread gt = (GameThread)this.gameJFrame.getThread();
+        return gt.getLevelNum();
     }
 }
